@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-black: #0a0a0a;
+    --color-charcoal: #1c1c1e;
+    --color-neon-cyan: #00efff;
+    --color-neon-pink: #ff2d95;
+    --color-electric-purple: #8a2be2;
+    --color-neon-green: #39ff14;
+  }
+
+  body {
+    background-color: var(--color-black);
+    color: white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--color-electric-purple)] hover:bg-[var(--color-neon-pink)] 
+           text-white font-bold py-2 px-4 rounded transition-colors duration-300;
+  }
+
+  .btn-secondary {
+    @apply bg-[var(--color-neon-cyan)] hover:bg-[var(--color-electric-purple)] 
+           text-black font-bold py-2 px-4 rounded transition-colors duration-300;
+  }
+
+  .input-field {
+    @apply bg-[var(--color-charcoal)] border border-gray-700 text-white rounded-lg 
+           focus:ring-[var(--color-neon-cyan)] focus:border-[var(--color-neon-cyan)] 
+           block w-full p-2.5;
+  }
+
+  .card {
+    @apply bg-[var(--color-charcoal)] rounded-xl shadow-lg p-6;
+  }
+
+  .table-row {
+    @apply border-b border-gray-700 hover:bg-gray-800 transition-colors;
+  }
+}
