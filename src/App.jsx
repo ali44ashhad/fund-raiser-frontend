@@ -8,7 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import "./index.css";
-import Header from "./components/common/header";
+import Header from "./components/common/Header";
 import HowToPlay from "./pages/HowToPlay";
 import Rules from "./pages/Rules";
 import Leaderboard from "./pages/Leaderboard";
