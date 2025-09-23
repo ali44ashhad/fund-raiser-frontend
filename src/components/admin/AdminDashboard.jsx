@@ -1,7 +1,6 @@
-// src/components/admin/AdminDashboard.jsx
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import adminAPI from "../../services/admin"; // ensure path matches your project
+import adminAPI from "../../services/admin";
 import { formatCurrency } from "../../utils/helpers";
 
 const StatCard = ({ title, value, icon, color }) => (

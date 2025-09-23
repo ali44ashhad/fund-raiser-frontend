@@ -1,6 +1,5 @@
-// src/components/admin/AdminSidebar.jsx
 import { useAuth } from "../../contexts/AuthContext";
-import { getInitials } from "../../utils/helpers"; // reuse helper
+import { getInitials } from "../../utils/helpers";
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {
   const { currentUser, logout } = useAuth();

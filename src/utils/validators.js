@@ -1,4 +1,3 @@
-// Required field validation (works for strings, arrays, numbers)
 export const validateRequired = (value, fieldName = "This field") => {
   if (value === null || value === undefined) return `${fieldName} is required`;
   if (typeof value === "string" && value.trim() === "")
@@ -8,7 +7,6 @@ export const validateRequired = (value, fieldName = "This field") => {
   return null;
 };
 
-// Email validation
 export const validateEmail = (email) => {
   if (!email) return "Email is required";
   const str = String(email).trim();
@@ -177,10 +175,6 @@ export const validateTeamSelection = (teams, minTeams = 3, maxTeams = 6) => {
   return null;
 };
 
-// Form validator helper
-// validationRules: { fieldName: [ rule, ... ] }
-// rule can be: a function(value, form, fieldName) -> error|string|null
-// or an object: { validator: fn, message?: string }
 export const validateForm = (formData = {}, validationRules = {}) => {
   const errors = {};
 

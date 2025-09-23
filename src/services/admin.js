@@ -1,10 +1,6 @@
 // src/services/admin.js
 import { api } from "./auth";
 
-/**
- * adminAPI - uses shared `api` instance so Authorization header is included.
- */
-
 export const adminAPI = {
   // Dashboard
   getRecentPlayers: async () => {

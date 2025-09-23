@@ -1,24 +1,16 @@
-// src/components/admin/UserManagement.jsx
 import { useState, useEffect, useRef } from "react";
 import adminAPI from "../../services/admin";
 import { formatDate } from "../../utils/helpers";
 
-/**
- * UserManagement page
- *
- * - Uses adminAPI.getUsers(page, limit, search) if available.
- * - Falls back to mock data if the API isn't present.
- */
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(null); // user id for action spinner
+  const [actionLoading, setActionLoading] = useState(null);
   const mountedRef = useRef(true);
 
-  // Local mock data used when backend isn't available
   const mockUsers = [
     {
       id: "1",
@@ -74,13 +66,11 @@ const UserManagement = () => {
     };
   }, []);
 
-  // debounce searchTerm -> debouncedSearch
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 400);
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  // fetch users whenever debouncedSearch changes
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
@@ -89,15 +79,12 @@ const UserManagement = () => {
       try {
         let res = null;
 
-        // Prefer adminAPI.getUsers(page, limit, search) if available
         if (adminAPI.getUsers) {
-          // pass search as third param (your adminAPI accepts (page, limit, search))
           res = await adminAPI
             .getUsers(1, 50, debouncedSearch)
             .catch(() => null);
         }
 
-        // Normalize response to an array
         let data =
           (res &&
             (Array.isArray(res)
@@ -105,7 +92,6 @@ const UserManagement = () => {
               : res?.data ?? res?.users ?? res?.results ?? null)) ||
           null;
 
-        // If API didn't return usable data, fall back to mock filtered by search
         if (!data) {
           const q = (debouncedSearch || "").toLowerCase();
           data = mockUsers.filter(
@@ -117,7 +103,6 @@ const UserManagement = () => {
           );
         }
 
-        // Ensure array and normalize fields
         const normalized = (Array.isArray(data) ? data : []).map((u, idx) => ({
           id: u.id ?? u._id ?? String(idx),
           name: u.name ?? u.fullName ?? u.username ?? "—",
@@ -141,7 +126,7 @@ const UserManagement = () => {
         console.error("fetchUsers error:", err);
         if (mountedRef.current) {
           setError("Failed to load users — showing sample data.");
-          // fallback to mock
+
           setUsers(mockUsers);
         }
       } finally {
@@ -189,7 +174,7 @@ Tickets: ${user.tickets}
 Status: ${user.status}
 Joined: ${formatDate(user.joined)}
 `;
-    // replace with modal as needed
+
     alert(details);
   };
 

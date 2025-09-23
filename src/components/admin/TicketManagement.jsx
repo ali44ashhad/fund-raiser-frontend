@@ -1,4 +1,3 @@
-// src/components/admin/TicketManagement.jsx
 import { useState, useEffect } from "react";
 import adminAPI from "../../services/admin";
 import { formatDate } from "../../utils/helpers";
@@ -8,9 +7,8 @@ const TicketManagement = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(null); // id for action spinner
+  const [actionLoading, setActionLoading] = useState(null);
 
-  // Local mock (used if backend not available)
   const mockTickets = [
     {
       id: "1",
@@ -69,29 +67,23 @@ const TicketManagement = () => {
       try {
         let res = null;
 
-        // Try a generic admin getTickets if present
         if (adminAPI.getTickets) {
-          // getTickets may accept pagination; call without args to get defaults
           res = await adminAPI.getTickets().catch(() => null);
         }
 
-        // If not available, try listTickets (tournament-scoped) with no id (some implementations return all)
         if (!res && adminAPI.listTickets) {
           res = await adminAPI.listTickets().catch(() => null);
         }
 
-        // Normalize response to an array of tickets
         let data =
           (res &&
             (Array.isArray(res) ? res : res?.data ?? res?.tickets ?? [])) ||
           mockTickets;
 
         if (!Array.isArray(data)) {
-          // attempt to dig into common wraps
           data = data.items || data.results || mockTickets;
         }
 
-        // Normalize fields and IDs
         const normalized = (Array.isArray(data) ? data : []).map((t, idx) => ({
           id: t.id ?? t._id ?? String(t.number ?? idx),
           number: t.number ?? t.ticketNumber ?? `T-${10000 + idx}`,
@@ -177,7 +169,7 @@ Status: ${ticket.status}
 Teams: ${Array.isArray(ticket.teams) ? ticket.teams.join(", ") : ticket.teams}
 Created: ${formatDate(ticket.created)}
 `;
-    // Replace with modal in future
+
     alert(details);
   };
 
@@ -191,21 +183,16 @@ Created: ${formatDate(ticket.created)}
     setError(null);
 
     try {
-      // Try to delete via adminAPI if available
-      // Several backends use DELETE /tournaments/teams/:id or /tickets/:id — try both
       if (adminAPI.deleteTicket) {
         await adminAPI.deleteTicket(ticket.id);
       } else if (adminAPI.delete) {
-        // generic delete
         await adminAPI.delete(`/tickets/${ticket.id}`);
       } else if (adminAPI.deleteTicketById) {
         await adminAPI.deleteTicketById(ticket.id);
       } else {
-        // Simulate delay if no API
         await new Promise((r) => setTimeout(r, 500));
       }
 
-      // Optimistically remove from UI
       setTickets((prev) => prev.filter((t) => t.id !== ticket.id));
     } catch (err) {
       console.error("delete ticket error:", err);

@@ -1,16 +1,14 @@
-// src/components/admin/PaymentManagement.jsx
+ 
 import { useState, useEffect } from "react";
-import paymentAPI from "../../services/payment"; // uses /api/payment/... (placeholder service)
-import { formatCurrency } from "../../utils/helpers";
+import paymentAPI from "../../services/payment"; 
 
 const PaymentManagement = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState(null);
-  const [actionLoading, setActionLoading] = useState(null); // payment id for action spinner
-
-  // Local fallback/mock data (used if API not present)
+  const [actionLoading, setActionLoading] = useState(null); 
+   
   const mockData = [
     {
       id: "1",
@@ -66,25 +64,24 @@ const PaymentManagement = () => {
       setLoading(true);
       setError(null);
 
-      // Try to call paymentAPI.getPayments or getPaymentHistory; fall back to mock
+      
       try {
         let res = null;
-        // Prefer admin list endpoint if implemented in paymentAPI
+        
         if (paymentAPI.getPayments) {
           res = await paymentAPI.getPayments().catch(() => null);
         }
-
-        // If not available, try history (this requires a userId — skip here)
+ 
         if (!res && paymentAPI.getPaymentHistory) {
-          // If you have an admin userId, pass it here. For now we'll attempt without.
+        
           res = await paymentAPI.getPaymentHistory().catch(() => null);
         }
 
-        // If no response, use mock
+   
         const data = (res && (Array.isArray(res) ? res : res?.data || res?.payments)) || mockData;
 
         if (mounted) {
-          // Normalize IDs and fields if necessary
+          
           const normalized = (Array.isArray(data) ? data : []).map((p, idx) => ({
             id: p.id ?? p._id ?? String(p.transactionId ?? idx),
             transactionId: p.transactionId ?? p.txn ?? `TXN-${10000 + idx}`,
@@ -101,7 +98,7 @@ const PaymentManagement = () => {
       } catch (err) {
         console.error("fetchPayments error:", err);
         if (mounted) setError("Failed to load payments — showing sample data.");
-        // fallback to mock
+       
         setPayments(mockData);
       } finally {
         if (mounted) setLoading(false);
@@ -172,21 +169,21 @@ Date: ${new Date(payment.date).toLocaleString()}
     setError(null);
 
     try {
-      // Call API refund if available
+    
       if (paymentAPI.processRefund) {
-        // Some backends expect paymentId or transactionId — try both
+      
         await paymentAPI.processRefund(payment.id, payment.amount).catch(async (err) => {
-          // try pass transactionId if that fails
+         
           return paymentAPI.processRefund(payment.transactionId, payment.amount).catch(() => {
             throw err;
           });
         });
       } else {
-        // Simulate delay when API not present
+       
         await new Promise((res) => setTimeout(res, 800));
       }
 
-      // Optimistically update UI
+    
       setPayments((prev) => prev.map((p) => (p.id === payment.id ? { ...p, status: "Refunded" } : p)));
       alert("Refund processed successfully.");
     } catch (err) {
