@@ -1,4 +1,3 @@
-// Format currency (safe: falls back to simple formatting if Intl fails)
 export const formatCurrency = (amount, currency = "USD", locale = "en-US") => {
   if (amount == null || Number.isNaN(Number(amount)))
     return formatCurrency(0, currency, locale);
@@ -9,12 +8,10 @@ export const formatCurrency = (amount, currency = "USD", locale = "en-US") => {
       maximumFractionDigits: 2,
     }).format(Number(amount));
   } catch (e) {
-    // Fallback
     return `${currency} ${Number(amount).toFixed(2)}`;
   }
 };
 
-// Format date (safe)
 export const formatDate = (date, options = {}, locale = "en-US") => {
   const defaultOptions = {
     year: "numeric",
@@ -48,7 +45,6 @@ export const formatDateTime = (date, locale = "en-US") => {
   }
 };
 
-// Generate random ID (uses crypto when available)
 export const generateId = (length = 8) => {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   if (
@@ -97,14 +93,12 @@ export const debounce = (func, wait = 300, immediate = false) => {
   return debounced;
 };
 
-// Truncate text safely
 export const truncateText = (text = "", maxLength = 50) => {
   const str = String(text);
   if (str.length <= maxLength) return str;
   return str.slice(0, maxLength).trimEnd() + "...";
 };
 
-// Calculate total points for a ticket
 export const calculateTotalPoints = (teams = []) => {
   if (!Array.isArray(teams)) return 0;
   return teams.reduce(
@@ -113,7 +107,6 @@ export const calculateTotalPoints = (teams = []) => {
   );
 };
 
-// Sort tickets by points
 export const sortTicketsByPoints = (tickets = [], ascending = false) => {
   if (!Array.isArray(tickets)) return [];
   return [...tickets].sort((a, b) => {
@@ -123,14 +116,12 @@ export const sortTicketsByPoints = (tickets = [], ascending = false) => {
   });
 };
 
-// Filter tickets by type
 export const filterTicketsByType = (tickets = [], type) => {
   if (!Array.isArray(tickets)) return [];
   if (!type) return tickets;
   return tickets.filter((ticket) => ticket?.type === type);
 };
 
-// Search tickets by team name or number (defensive)
 export const searchTickets = (tickets = [], query = "") => {
   if (!Array.isArray(tickets) || !query) return tickets || [];
   const lowerQuery = String(query).toLowerCase();

@@ -1,4 +1,3 @@
-// src/services/auth.js
 import axios from "axios";
 
 const API_BASE_URL =
@@ -13,7 +12,6 @@ export const api = axios.create({
   },
 });
 
-// Helper: set/remove default Authorization header on the shared instance
 export const setAuthToken = (token) => {
   if (token) {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -22,10 +20,8 @@ export const setAuthToken = (token) => {
   }
 };
 
-// Interceptor: attach token from localStorage as a fallback (keeps requests covered)
 api.interceptors.request.use(
   (config) => {
-    // prefer default header (setAuthToken) but fall back to localStorage for safety
     if (!config.headers?.Authorization) {
       const token = localStorage.getItem("token");
       if (token) {
@@ -37,7 +33,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// IMPORTANT: do NOT redirect inside interceptor; just clear storage + defaults
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -46,7 +41,7 @@ api.interceptors.response.use(
         localStorage.removeItem("token");
         localStorage.removeItem("isAdmin");
       } catch (e) {}
-      // Remove header on our shared instance so future requests won't include stale token
+
       try {
         delete api.defaults.headers.common["Authorization"];
       } catch (e) {}
@@ -63,7 +58,6 @@ export const authAPI = {
       const path = `/auth/${rolePath(isAdmin)}/login`;
       const response = await api.post(path, { email, password });
 
-      // Debug: log entire response payload
       console.log("login response.data:", response.data);
 
       const { token, user } = response.data;
@@ -72,7 +66,7 @@ export const authAPI = {
         const derivedIsAdmin =
           Boolean(user?.role === "admin") || Boolean(isAdmin);
         localStorage.setItem("isAdmin", derivedIsAdmin ? "true" : "false");
-        // set header right away
+
         setAuthToken(token);
       }
       return { token, user };
@@ -106,19 +100,15 @@ export const authAPI = {
     }
   },
 
-  // Use plain axios for verify to avoid relying on instance interceptors
   verifyToken: async (token) => {
     try {
       if (!token) throw new Error("No token provided");
       const headers = { Authorization: `Bearer ${token}` };
 
-      // try generic
       try {
         const res = await axios.get(`${API_BASE_URL}/auth/verify`, { headers });
         return res.data.user;
-      } catch (err) {
-        // fall back to role-specific verify
-      }
+      } catch (err) {}
 
       const isAdminLocal = localStorage.getItem("isAdmin") === "true";
       const path = `${API_BASE_URL}/auth/${

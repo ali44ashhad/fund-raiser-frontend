@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.jsx
 import {
   createContext,
   useContext,
@@ -6,7 +5,7 @@ import {
   useEffect,
   useCallback,
 } from "react";
-import { authAPI, api, setAuthToken } from "../services/auth"; // <--- import setAuthToken
+import { authAPI, api, setAuthToken } from "../services/auth";
 
 const AuthContext = createContext();
 
@@ -20,12 +19,11 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  // helper to persist token + isAdmin flag
   const persistAuth = (token, adminFlag) => {
     try {
       if (token) {
         localStorage.setItem("token", token);
-        // ensure axios instance header is set
+
         setAuthToken(token);
       }
       localStorage.setItem("isAdmin", adminFlag ? "true" : "false");
@@ -67,7 +65,7 @@ export const AuthProvider = ({ children }) => {
     try {
       localStorage.removeItem("token");
       localStorage.removeItem("isAdmin");
-      // remove default header so further requests don't include stale token
+
       setAuthToken(null);
     } catch (e) {
       console.warn("logout: localStorage removal failed", e);
@@ -113,7 +111,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // init: set token header (if present) then verify token
   useEffect(() => {
     let mounted = true;
     const init = async () => {
@@ -124,7 +121,6 @@ export const AuthProvider = ({ children }) => {
       const savedIsAdmin = localStorage.getItem("isAdmin") === "true";
 
       if (token) {
-        // make sure axios default header is set immediately
         setAuthToken(token);
       } else {
         if (mounted) setLoading(false);

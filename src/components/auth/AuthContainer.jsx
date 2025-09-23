@@ -1,4 +1,3 @@
-// src/components/auth/AuthContainer.jsx
 import { motion } from "framer-motion";
 
 const LockIcon = () => (

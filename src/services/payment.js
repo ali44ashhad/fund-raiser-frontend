@@ -1,10 +1,4 @@
-// src/services/payment.js
 import { api } from "./auth";
-
-/**
- * paymentAPI - payment related endpoints using shared `api`.
- * Endpoints are relative to base API_URL which is configured in auth.js
- */
 
 export const paymentAPI = {
   processStripePayment: async (paymentData) => {

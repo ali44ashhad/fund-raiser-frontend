@@ -1,8 +1,6 @@
-// src/services/admin.js
 import { api } from "./auth";
 
 export const adminAPI = {
-  // Dashboard
   getRecentPlayers: async () => {
     try {
       const res = await api.get("/dashboard/players/recent");
@@ -42,7 +40,6 @@ export const adminAPI = {
     }
   },
 
-  // Tournaments
   createTournament: async (data) => {
     try {
       const res = await api.post("/tournaments", data);
@@ -108,7 +105,6 @@ export const adminAPI = {
     }
   },
 
-  // Teams
   createTeams: async (tournamentId, teams) => {
     try {
       const res = await api.post("/tournaments/teams", { tournamentId, teams });
@@ -144,7 +140,6 @@ export const adminAPI = {
     }
   },
 
-  // Tickets related admin endpoints
   createTicket: async (ticketData) => {
     try {
       const res = await api.post("/tickets/create", ticketData);

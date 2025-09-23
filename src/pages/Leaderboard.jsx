@@ -1,4 +1,3 @@
-// src/pages/LeaderBoard.jsx
 import { useState, useEffect } from "react";
 import Card from "../components/ui/Card";
 

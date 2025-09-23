@@ -1,4 +1,3 @@
-// src/components/common/Header.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
@@ -17,7 +16,6 @@ const Header = () => {
     <header className="sticky top-0 z-50 bg-[#0B1D13] border-b border-[#4B5320] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
               <div className="h-8 w-8 bg-[#FF1E1E] rounded-md flex items-center justify-center mr-2">
@@ -42,7 +40,6 @@ const Header = () => {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
             <Link
               to="/"

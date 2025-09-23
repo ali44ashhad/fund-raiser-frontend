@@ -1,5 +1,3 @@
-// src/pages/AdminDashboard.jsx
-
 import { useState, useEffect } from "react";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminDashboard from "../components/admin/AdminDashboard";
@@ -13,7 +11,7 @@ const TABS = {
   USERS: "users",
   TICKETS: "tickets",
   PAYMENTS: "payments",
-  // keep these available if you add components later:
+
   TOURNAMENTS: "tournaments",
   REPORTS: "reports",
   SETTINGS: "settings",

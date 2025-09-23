@@ -1,4 +1,3 @@
-// src/pages/FAQ.jsx
 import { useState } from "react";
 
 const FAQ = () => {

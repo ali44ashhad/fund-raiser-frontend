@@ -64,7 +64,6 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
         ))}
       </nav>
 
-      {/* User & Logout */}
       <div className="p-4 border-t border-[#2A2A2A]">
         <div className="flex items-center mb-4">
           <div className="h-10 w-10 bg-[#FF1E1E] rounded-full flex items-center justify-center text-white font-semibold mr-3">

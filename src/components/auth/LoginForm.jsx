@@ -1,5 +1,3 @@
-// src/components/auth/LoginForm.jsx
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -18,7 +16,7 @@ const LoginForm = ({ onSubmit, loading = false }) => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-    // clear field error when user types
+
     setErrors((prev) => ({ ...prev, [name]: null }));
   };
 

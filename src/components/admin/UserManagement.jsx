@@ -188,18 +188,14 @@ Joined: ${formatDate(user.joined)}
     setError(null);
 
     try {
-      // Call adminAPI.deleteUser(userId) if available
       if (adminAPI.deleteUser) {
         await adminAPI.deleteUser(user.id);
       } else if (adminAPI.delete) {
-        // generic delete fallback if your adminAPI supports a generic delete method
         await adminAPI.delete(`/users/${user.id}`);
       } else {
-        // simulate delay
         await new Promise((r) => setTimeout(r, 600));
       }
 
-      // Optimistically remove user from UI
       setUsers((prev) => prev.filter((u) => u.id !== user.id));
     } catch (err) {
       console.error("deleteUser error:", err);

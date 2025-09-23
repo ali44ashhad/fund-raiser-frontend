@@ -1,4 +1,3 @@
-// src/components/auth/RegisterForm.jsx
 import { useState } from "react";
 
 const RegisterForm = ({ onSubmit, loading = false }) => {
@@ -21,7 +20,6 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
       [name]: type === "checkbox" ? checked : value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,

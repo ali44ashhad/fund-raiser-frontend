@@ -76,7 +76,6 @@ const AdminDashboard = () => {
       setLoading(true);
       setError(null);
       try {
-        // Fetch recent lists from adminAPI (matches your Postman JSON)
         const [playersRes, tournamentsRes, ticketsRes] = await Promise.all([
           adminAPI.getRecentPlayers().catch(() => ({})),
           adminAPI.getRecentTournaments().catch(() => ({})),
@@ -85,7 +84,6 @@ const AdminDashboard = () => {
 
         if (!mounted) return;
 
-        // recent players endpoint likely returns an array; adapt if shape differs
         const players = Array.isArray(playersRes)
           ? playersRes
           : playersRes.players || playersRes.data || [];
@@ -93,7 +91,6 @@ const AdminDashboard = () => {
           ? ticketsRes
           : ticketsRes.tickets || ticketsRes.data || [];
 
-        // Build lightweight stats (you can replace with backend totals if available)
         const totalUsers =
           playersRes.totalCount ?? players.length ?? stats.totalUsers;
         const totalTickets =
@@ -123,7 +120,6 @@ const AdminDashboard = () => {
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -141,7 +137,6 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Users"

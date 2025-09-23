@@ -1,4 +1,3 @@
-// src/components/ui/Card.jsx
 const Card = ({ children, className = "", variant = "default", ...props }) => {
   const variants = {
     default: "bg-charcoal border border-gray-700",

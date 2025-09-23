@@ -1,6 +1,3 @@
-// src/utils/constants.js
-// Application constants and configuration
-
 export const APP_CONFIG = {
   NAME: "Sports Fundraiser",
   VERSION: "1.0.0",
@@ -50,12 +47,12 @@ export const TICKET_PRICES = {
 };
 
 export const PRIZE_DISTRIBUTION = {
-  FIRST_PLACE: 0.5, // 50% of prize pool
-  SECOND_PLACE: 0.2, // 20% of prize pool
-  THIRD_PLACE: 0.1, // 10% of prize pool
-  LOWEST_SCORE: 0.1, // 10% of prize pool
-  SECOND_LOWEST: 0.05, // 5% of prize pool
-  RANDOM_DRAW: 0.05, // 5% of prize pool
+  FIRST_PLACE: 0.5,
+  SECOND_PLACE: 0.2,
+  THIRD_PLACE: 0.1,
+  LOWEST_SCORE: 0.1,
+  SECOND_LOWEST: 0.05,
+  RANDOM_DRAW: 0.05,
 };
 
 export const API_ENDPOINTS = {
@@ -64,8 +61,8 @@ export const API_ENDPOINTS = {
     ADMIN_REGISTER: "/auth/admin/register",
     PLAYER_LOGIN: "/auth/player/login",
     PLAYER_REGISTER: "/auth/player/register",
-    FORGOT_PASSWORD: "/auth/forgot-password", // placeholder (not in Postman JSON)
-    RESET_PASSWORD: "/auth/reset-password", // placeholder (not in Postman JSON)
+    FORGOT_PASSWORD: "/auth/forgot-password",
+    RESET_PASSWORD: "/auth/reset-password",
   },
   DASHBOARD: {
     RECENT_PLAYERS: "/dashboard/players/recent",
@@ -88,7 +85,6 @@ export const API_ENDPOINTS = {
     BY_ID: (ticketId) => `/tickets/${ticketId}`,
   },
   PAYMENT: {
-    // Not present in Postman JSON, kept for future use
     PROCESS: "/payment/process",
     HISTORY: (userId) => `/payment/history/${userId}`,
     REFUND: "/payment/refund",

@@ -1,4 +1,3 @@
-// src/pages/HowToPlay.jsx
 import { Link } from "react-router-dom";
 
 const HowToPlay = () => {

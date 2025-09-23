@@ -1,4 +1,3 @@
-// src/components/common/LoadingSpinner.jsx
 const LoadingSpinner = ({ size = "medium", className = "" }) => {
   const sizeClasses = {
     small: "h-4 w-4",

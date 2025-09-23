@@ -1,12 +1,4 @@
-// src/services/tickets.js
-
 import { api } from "./auth";
-
-/**
- * ticketsAPI - functions for ticket-related requests.
- * All requests go through the shared `api`, which will already
- * include the Authorization header if set via setAuthToken(token).
- */
 
 const unwrap = (res) => {
   if (!res) return null;
@@ -26,7 +18,6 @@ const handleError = (err) => {
 };
 
 const ticketsAPI = {
-  // Get tickets for the authenticated user (backend looks at token)
   getUserTickets: async (params = {}) => {
     try {
       const res = await api.get("/tickets", { params });
@@ -36,7 +27,6 @@ const ticketsAPI = {
     }
   },
 
-  // More explicit listing helper (same as getUserTickets but kept for clarity)
   listTickets: async (params = {}) => {
     try {
       const res = await api.get("/tickets", { params });
