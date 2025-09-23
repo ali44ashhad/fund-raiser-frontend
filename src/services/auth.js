@@ -56,7 +56,11 @@ export const authAPI = {
   login: async (email, password, isAdmin = false) => {
     try {
       const path = `/auth/${rolePath(isAdmin)}/login`;
-      const response = await api.post(path, { email, password });
+      const response = await api.post(
+        path,
+        { email, password },
+        { withCredentials: true }
+      );
 
       console.log("login response.data:", response.data);
 
