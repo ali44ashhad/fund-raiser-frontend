@@ -35,10 +35,24 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password, adminFlag = false) => {
     try {
+      // const res = await authAPI.login(email, password, adminFlag);
+      // const { token, user } = res;
+      // setCurrentUser(user ?? null);
+      // persistAuth(token, adminFlag || Boolean(user?.role === "admin"));
+      // return res;
       const res = await authAPI.login(email, password, adminFlag);
-      const { token, user } = res;
-      setCurrentUser(user ?? null);
-      persistAuth(token, adminFlag || Boolean(user?.role === "admin"));
+      const { token, user, raw } = res;
+      // attempt to pick admin/player from raw if user is null
+      const effectiveUser = user ?? raw?.player ?? raw?.admin ?? null;
+
+      setCurrentUser(effectiveUser);
+      persistAuth(
+        token,
+        adminFlag ||
+          Boolean(effectiveUser?.role === "admin") ||
+          Boolean(raw?.admin)
+      );
+
       return res;
     } catch (err) {
       console.error("login error:", err);

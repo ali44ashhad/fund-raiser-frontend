@@ -7,7 +7,8 @@ const Card = ({ children, className = "", variant = "default", ...props }) => {
 
   return (
     <div
-      className={`rounded-xl p-6 ${variants[variant]} ${className}`}
+      className={`relative rounded-xl p-6 ${variants[variant]} ${className}`}
+      style={{ pointerEvents: "auto" }} // ensures buttons inside are clickable
       {...props}
     >
       {children}

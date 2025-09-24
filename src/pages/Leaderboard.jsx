@@ -6,94 +6,61 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTournament, setActiveTournament] = useState("super-bowl-2024");
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Team filter
+  const [teamFilter, setTeamFilter] = useState(null); // null = no filter
+
   useEffect(() => {
-    // Simulate fetching leaderboard data
     const fetchLeaderboard = async () => {
       setTimeout(() => {
-        const mockData = [
-          {
-            position: 1,
-            ticketNumber: "T-12345",
-            player: "John Doe",
-            totalPoints: 187,
-            teams: 4,
-            status: "active",
-          },
-          {
-            position: 2,
-            ticketNumber: "T-12346",
-            player: "Jane Smith",
-            totalPoints: 176,
-            teams: 4,
-            status: "active",
-          },
-          {
-            position: 3,
-            ticketNumber: "T-12347",
-            player: "Mike Johnson",
-            totalPoints: 165,
-            teams: 3,
-            status: "active",
-          },
-          {
-            position: 4,
-            ticketNumber: "T-12348",
-            player: "Sarah Wilson",
-            totalPoints: 158,
-            teams: 6,
-            status: "active",
-          },
-          {
-            position: 5,
-            ticketNumber: "T-12349",
-            player: "David Brown",
-            totalPoints: 149,
-            teams: 5,
-            status: "active",
-          },
-          {
-            position: 6,
-            ticketNumber: "T-12350",
-            player: "Emily Davis",
-            totalPoints: 142,
-            teams: 4,
-            status: "active",
-          },
-          {
-            position: 7,
-            ticketNumber: "T-12351",
-            player: "Robert Lee",
-            totalPoints: 135,
-            teams: 3,
-            status: "active",
-          },
-          {
-            position: 8,
-            ticketNumber: "T-12352",
-            player: "Lisa Garcia",
-            totalPoints: 128,
-            teams: 6,
-            status: "active",
-          },
-          {
-            position: 9,
-            ticketNumber: "T-12353",
-            player: "James Martinez",
-            totalPoints: 121,
-            teams: 4,
-            status: "active",
-          },
-          {
-            position: 10,
-            ticketNumber: "T-12354",
-            player: "Karen White",
-            totalPoints: 115,
-            teams: 5,
-            status: "active",
-          },
+        const names = [
+          "John Doe",
+          "Jane Smith",
+          "Michael Johnson",
+          "Sarah Wilson",
+          "David Brown",
+          "Emily Davis",
+          "Robert Lee",
+          "Lisa Garcia",
+          "James Martinez",
+          "Karen White",
+          "Daniel Harris",
+          "Laura Clark",
+          "Matthew Lewis",
+          "Sophia Walker",
+          "Joshua Hall",
+          "Olivia Allen",
+          "Andrew Young",
+          "Emma King",
+          "Joseph Wright",
+          "Mia Scott",
+          "Christopher Green",
+          "Amelia Adams",
+          "Ryan Baker",
+          "Charlotte Nelson",
+          "Brandon Carter",
+          "Abigail Mitchell",
+          "Justin Perez",
+          "Hannah Roberts",
+          "Anthony Turner",
+          "Lily Phillips",
         ];
+
+        const mockData = Array.from({ length: 30 }, (_, i) => ({
+          position: i + 1,
+          ticketNumber: `T-${10001 + i}`,
+          player: names[i], // realistic name
+          totalPoints: 200 - i * 5,
+          teams: Math.floor(Math.random() * 4) + 3, // 3 to 6 teams
+          status: "active",
+        }));
+
         setLeaderboard(mockData);
         setLoading(false);
+        setCurrentPage(1);
       }, 1000);
     };
 
@@ -101,15 +68,23 @@ const Leaderboard = () => {
   }, [activeTournament]);
 
   const getPositionBadge = (position) => {
-    if (position === 1) {
-      return "🥇";
-    } else if (position === 2) {
-      return "🥈";
-    } else if (position === 3) {
-      return "🥉";
-    }
+    if (position === 1) return "🥇";
+    if (position === 2) return "🥈";
+    if (position === 3) return "🥉";
     return position;
   };
+
+  // Apply team filter
+  const filteredData = teamFilter
+    ? leaderboard.filter((entry) => entry.teams === teamFilter)
+    : leaderboard;
+
+  // Pagination
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const currentData = filteredData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   if (loading) {
     return (
@@ -131,36 +106,42 @@ const Leaderboard = () => {
             Track your progress and see how you rank against other players
           </p>
         </div>
-
-        {/* Tournament Selector */}
-        <Card className="mb-8">
+        {/* Tournament Info + Team Filter Dropdown */}
+        <Card className="mb-8 p-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            {/* Tournament Info */}
             <div>
-              <h2 className="text-2xl font-bold text-[#FF1E1E] mb-2">
-                Super Bowl 2024
+              <h2 className="text-2xl font-bold text-[#FF1E1E] mb-1">
+                Super Bowl champions
               </h2>
               <p className="text-gray-400">
-                February 11, 2024 - State Farm Stadium
+                {new Date().toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
               </p>
             </div>
+
+            {/* Team Filter Dropdown */}
             <div className="mt-4 md:mt-0">
               <select
-                value={activeTournament}
-                onChange={(e) => setActiveTournament(e.target.value)}
+                value={teamFilter || ""}
+                onChange={(e) =>
+                  setTeamFilter(e.target.value ? Number(e.target.value) : null)
+                }
                 className="bg-[#2A2A2A] border border-[#4B5320] text-white rounded-lg px-4 py-2 focus:ring-[#FF7F11] focus:border-[#FF7F11]"
               >
-                <option value="super-bowl-2024">Super Bowl 2024</option>
-                <option value="march-madness-2024" disabled>
-                  March Madness 2024 (Coming Soon)
-                </option>
-                <option value="world-cup-2024" disabled>
-                  World Cup 2024 (Coming Soon)
-                </option>
+                <option value="">All Teams</option>
+                <option value={3}>3 Teams</option>
+                <option value={4}>4 Teams</option>
+                <option value={5}>5 Teams</option>
+                <option value={6}>6 Teams</option>
               </select>
             </div>
           </div>
         </Card>
-
         {/* Leaderboard Table */}
         <Card>
           <div className="overflow-x-auto">
@@ -188,40 +169,32 @@ const Leaderboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
-                {leaderboard.map((entry) => (
+                {currentData.map((entry) => (
                   <tr
                     key={entry.ticketNumber}
                     className="hover:bg-[#2A2A2A] transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-2xl font-bold text-[#FF7F11]">
-                        {getPositionBadge(entry.position)}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap text-2xl font-bold text-[#FF7F11]">
+                      {getPositionBadge(entry.position)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-mono text-[#FF1E1E]">
-                        {entry.ticketNumber}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap font-mono text-[#FF1E1E]">
+                      {entry.ticketNumber}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 bg-[#2A2A2A] rounded-full flex items-center justify-center text-white font-semibold mr-3">
                           {entry.player.charAt(0)}
                         </div>
-                        <div>
-                          <div className="text-white font-medium">
-                            {entry.player}
-                          </div>
+                        <div className="text-white font-medium">
+                          {entry.player}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-gray-300">{entry.teams} teams</span>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-300">
+                      {entry.teams} teams
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-[#FF7F11] font-bold text-xl">
-                        {entry.totalPoints}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap text-[#FF7F11] font-bold text-xl">
+                      {entry.totalPoints}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-[#4B5320] bg-opacity-40 text-[#FF7F11] border border-[#4B5320]">
@@ -233,48 +206,84 @@ const Leaderboard = () => {
               </tbody>
             </table>
           </div>
-
-          {/* Legend */}
-          <div className="mt-8 p-4 bg-[#2A2A2A] rounded-lg border border-[#4B5320]">
-            <h3 className="text-lg font-semibold text-[#FF7F11] mb-2">
-              Legend
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
-              <div>
-                <span className="inline-block w-3 h-3 bg-[#FF7F11] rounded-full mr-2"></span>
-                <span>Active: Ticket is still in contention for prizes</span>
-              </div>
-              <div>
-                <span className="inline-block w-3 h-3 bg-gray-500 rounded-full mr-2"></span>
-                <span>Eliminated: All teams have been eliminated</span>
-              </div>
-            </div>
+          {/* Pagination Controls */}
+          <div className="mt-4 flex justify-center space-x-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-3 py-1 rounded ${
+                  currentPage === i + 1
+                    ? "bg-[#FF7F11] text-white"
+                    : "bg-gray-700 text-white"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 bg-gray-700 text-white rounded disabled:opacity-50"
+            >
+              Next
+            </button>
           </div>
-
-          {/* Prize Information */}
+          <div className="mt-8 p-4 bg-[#2A2A2A] rounded-lg border border-[#4B5320]">
+            {" "}
+            <h3 className="text-lg font-semibold text-[#FF7F11] mb-2">
+              {" "}
+              Legend{" "}
+            </h3>{" "}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
+              {" "}
+              <div>
+                {" "}
+                <span className="inline-block w-3 h-3 bg-[#FF7F11] rounded-full mr-2"></span>{" "}
+                <span>Active: Ticket is still in contention for prizes</span>{" "}
+              </div>{" "}
+              <div>
+                {" "}
+                <span className="inline-block w-3 h-3 bg-gray-500 rounded-full mr-2"></span>{" "}
+                <span>Eliminated: All teams have been eliminated</span>{" "}
+              </div>{" "}
+            </div>{" "}
+          </div>{" "}
+          {/* Prize Information */}{" "}
           <div className="mt-8 p-6 bg-gradient-to-r from-[#FF1E1E] to-[#FF7F11] rounded-lg">
+            {" "}
             <h3 className="text-2xl font-bold text-white mb-4">
-              💰 Prize Distribution
-            </h3>
+              {" "}
+              💰 Prize Distribution{" "}
+            </h3>{" "}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-white">
+              {" "}
               <div>
-                <h4 className="font-semibold mb-2">Top Prizes</h4>
+                {" "}
+                <h4 className="font-semibold mb-2">Top Prizes</h4>{" "}
                 <ul className="space-y-1">
-                  <li>1st Place: $5,000</li>
-                  <li>2nd Place: $2,000</li>
-                  <li>3rd Place: $1,000</li>
-                  <li>4th-10th: $500 each</li>
-                </ul>
-              </div>
+                  {" "}
+                  <li>1st Place: $5,000</li> <li>2nd Place: $2,000</li>{" "}
+                  <li>3rd Place: $1,000</li> <li>4th-10th: $500 each</li>{" "}
+                </ul>{" "}
+              </div>{" "}
               <div>
-                <h4 className="font-semibold mb-2">Special Prizes</h4>
+                {" "}
+                <h4 className="font-semibold mb-2">Special Prizes</h4>{" "}
                 <ul className="space-y-1">
-                  <li>Lowest Score: $1,000</li>
-                  <li>2nd Lowest: $500</li>
-                  <li>Random Draw: $250 (5 winners)</li>
-                </ul>
-              </div>
-            </div>
+                  {" "}
+                  <li>Lowest Score: $1,000</li> <li>2nd Lowest: $500</li>{" "}
+                  <li>Random Draw: $250 (5 winners)</li>{" "}
+                </ul>{" "}
+              </div>{" "}
+            </div>{" "}
           </div>
         </Card>
       </div>

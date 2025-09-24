@@ -187,7 +187,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-[#00E5FF]">Your Tickets</h2>
             <Link to="/tournaments">
-              <Button variant="primary">Buy More Tickets</Button>
+              <Button variant="outline">Buy More Tickets</Button>
             </Link>
           </div>
 
@@ -315,7 +315,7 @@ const Dashboard = () => {
               See how you stack up against other players.
             </p>
             <Link to="/leaderboard">
-              <Button variant="secondary">View Leaderboard</Button>
+              <Button variant="outline">View Leaderboard</Button>
             </Link>
           </Card>
 
@@ -327,7 +327,7 @@ const Dashboard = () => {
               Review the rules and how to win prizes.
             </p>
             <Link to="/rules">
-              <Button variant="primary">Read Rules</Button>
+              <Button variant="outline">Read Rules</Button>
             </Link>
           </Card>
         </div>

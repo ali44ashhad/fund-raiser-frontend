@@ -14,7 +14,8 @@ const Button = ({
 
   const variants = {
     primary: "bg-electric-purple hover:bg-neon-pink text-white",
-    secondary: "bg-neon-cyan hover:bg-electric-purple text-black",
+    secondary:
+      "border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white", // updated
     danger: "bg-red-600 hover:bg-red-700 text-white",
     outline:
       "border border-electric-purple text-electric-purple hover:bg-electric-purple hover:text-white",
