@@ -118,7 +118,9 @@ import UserManagement from "../components/admin/UserManagement";
 import TicketManagement from "../components/admin/TicketManagement";
 import PaymentManagement from "../components/admin/PaymentManagement";
 import { useAuth } from "../contexts/AuthContext";
-import Tournaments from "./Tournaments";
+import TournamentManagement from "../components/admin/TournamentManagement";
+import ReportManagement from "../components/admin/ReportManagement";
+import SettingsManagement from "../components/admin/SettingsManagement";
 
 const TABS = {
   DASHBOARD: "dashboard",
@@ -183,9 +185,11 @@ const AdminDashboardPage = () => {
         return <PaymentManagement />;
       // placeholders for future tabs
       case TABS.TOURNAMENTS:
-        return <Tournaments />;
+        return <TournamentManagement />;
       case TABS.REPORTS:
+        return <ReportManagement />;
       case TABS.SETTINGS:
+        return <SettingsManagement />;
       default:
         return <AdminDashboard />;
     }
@@ -222,14 +226,6 @@ const AdminDashboardPage = () => {
             >
               <Menu size={20} />
             </button>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-[#FF7F11]">
-                Admin Dashboard
-              </h1>
-              <p className="text-gray-400 mt-1 text-sm sm:text-base">
-                Welcome back{currentUser?.name ? `, ${currentUser.name}` : ""}
-              </p>
-            </div>
           </div>
 
           {/* Right side - active tab label */}

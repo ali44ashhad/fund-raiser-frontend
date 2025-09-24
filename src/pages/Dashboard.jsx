@@ -186,7 +186,7 @@ const Dashboard = () => {
         <Card className="mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-[#00E5FF]">Your Tickets</h2>
-            <Link to="/tournaments">
+            <Link to="/tickets">
               <Button variant="outline">Buy More Tickets</Button>
             </Link>
           </div>

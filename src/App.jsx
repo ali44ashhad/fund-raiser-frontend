@@ -21,6 +21,7 @@ import Tournaments from "./pages/Tournaments";
 
 import { Toaster } from "react-hot-toast"; // 👈 modern notifications
 import "./index.css";
+import TicketsPage from "./pages/Tickets";
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/tournaments" element={<Tournaments />} />
+              <Route path="/tickets" element={<TicketsPage />} />
             </Routes>
           </main>
 

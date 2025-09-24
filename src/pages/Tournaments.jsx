@@ -46,7 +46,7 @@ const Tournaments = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4 text-white">
+    <div className="max-w-6xl mx-auto py-8 px-4 text-white">
       <h1 className="text-3xl font-bold mb-6">Available Tournaments</h1>
       {tournaments.length === 0 ? (
         <p>No tournaments available.</p>
