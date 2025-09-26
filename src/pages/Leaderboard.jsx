@@ -1,3 +1,4 @@
+// src/pages/Leaderboard.jsx
 import { useState, useEffect } from "react";
 import Card from "../components/ui/Card";
 
@@ -9,9 +10,6 @@ const Leaderboard = () => {
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
-  // Team filter
-  const [teamFilter, setTeamFilter] = useState(null); // null = no filter
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -49,19 +47,23 @@ const Leaderboard = () => {
           "Lily Phillips",
         ];
 
+        // Create mock entries but keep only 4-team tickets
         const mockData = Array.from({ length: 30 }, (_, i) => ({
           position: i + 1,
           ticketNumber: `T-${10001 + i}`,
-          player: names[i], // realistic name
+          player: names[i],
           totalPoints: 200 - i * 5,
-          teams: Math.floor(Math.random() * 4) + 3, // 3 to 6 teams
+          teams: 4, // force 4 teams (only show 4-team entries)
           status: "active",
         }));
 
-        setLeaderboard(mockData);
+        // Only 4-team data (already forced above) — still keep filtering step for clarity
+        const onlyFourTeams = mockData.filter((m) => m.teams === 4);
+
+        setLeaderboard(onlyFourTeams);
         setLoading(false);
         setCurrentPage(1);
-      }, 1000);
+      }, 800);
     };
 
     fetchLeaderboard();
@@ -74,14 +76,9 @@ const Leaderboard = () => {
     return position;
   };
 
-  // Apply team filter
-  const filteredData = teamFilter
-    ? leaderboard.filter((entry) => entry.teams === teamFilter)
-    : leaderboard;
-
   // Pagination
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const currentData = filteredData.slice(
+  const totalPages = Math.ceil(leaderboard.length / itemsPerPage);
+  const currentData = leaderboard.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -103,13 +100,13 @@ const Leaderboard = () => {
             Tournament Leaderboard
           </h1>
           <p className="text-xl text-gray-300">
-            Track your progress and see how you rank against other players
+            Showing only tickets with <strong>4 teams</strong>
           </p>
         </div>
-        {/* Tournament Info + Team Filter Dropdown */}
+
+        {/* Tournament Info + (kept) Team Info */}
         <Card className="mb-8 p-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            {/* Tournament Info */}
             <div>
               <h2 className="text-2xl font-bold text-[#FF1E1E] mb-1">
                 Super Bowl champions
@@ -124,24 +121,18 @@ const Leaderboard = () => {
               </p>
             </div>
 
-            {/* Team Filter Dropdown */}
-            <div className="mt-4 md:mt-0">
-              <select
-                value={teamFilter || ""}
-                onChange={(e) =>
-                  setTeamFilter(e.target.value ? Number(e.target.value) : null)
-                }
-                className="bg-[#2A2A2A] border border-[#4B5320] text-white rounded-lg px-4 py-2 focus:ring-[#FF7F11] focus:border-[#FF7F11]"
-              >
-                <option value="">All Teams</option>
-                <option value={3}>3 Teams</option>
-                <option value={4}>4 Teams</option>
-                <option value={5}>5 Teams</option>
-                <option value={6}>6 Teams</option>
-              </select>
+            <div className="mt-4 md:mt-0 text-right">
+              <div className="text-sm text-gray-300">Category</div>
+              <div className="mt-1 inline-flex items-center px-3 py-1 rounded bg-[#2A2A2A] border border-[#4B5320]">
+                <span className="text-white font-medium">4 Teams</span>
+                <span className="ml-3 text-xs text-gray-400">
+                  Price: $35.00
+                </span>
+              </div>
             </div>
           </div>
         </Card>
+
         {/* Leaderboard Table */}
         <Card>
           <div className="overflow-x-auto">
@@ -206,6 +197,7 @@ const Leaderboard = () => {
               </tbody>
             </table>
           </div>
+
           {/* Pagination Controls */}
           <div className="mt-4 flex justify-center space-x-2">
             <button
@@ -236,54 +228,47 @@ const Leaderboard = () => {
               Next
             </button>
           </div>
+
+          {/* Legend / Prize Info */}
           <div className="mt-8 p-4 bg-[#2A2A2A] rounded-lg border border-[#4B5320]">
-            {" "}
             <h3 className="text-lg font-semibold text-[#FF7F11] mb-2">
-              {" "}
-              Legend{" "}
-            </h3>{" "}
+              Legend
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
-              {" "}
               <div>
-                {" "}
-                <span className="inline-block w-3 h-3 bg-[#FF7F11] rounded-full mr-2"></span>{" "}
-                <span>Active: Ticket is still in contention for prizes</span>{" "}
-              </div>{" "}
+                <span className="inline-block w-3 h-3 bg-[#FF7F11] rounded-full mr-2"></span>
+                Active: Ticket is still in contention
+              </div>
               <div>
-                {" "}
-                <span className="inline-block w-3 h-3 bg-gray-500 rounded-full mr-2"></span>{" "}
-                <span>Eliminated: All teams have been eliminated</span>{" "}
-              </div>{" "}
-            </div>{" "}
-          </div>{" "}
-          {/* Prize Information */}{" "}
+                <span className="inline-block w-3 h-3 bg-gray-500 rounded-full mr-2"></span>
+                Eliminated: All teams have been eliminated
+              </div>
+            </div>
+          </div>
+
           <div className="mt-8 p-6 bg-gradient-to-r from-[#FF1E1E] to-[#FF7F11] rounded-lg">
-            {" "}
             <h3 className="text-2xl font-bold text-white mb-4">
-              {" "}
-              💰 Prize Distribution{" "}
-            </h3>{" "}
+              💰 Prize Distribution
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-white">
-              {" "}
               <div>
-                {" "}
-                <h4 className="font-semibold mb-2">Top Prizes</h4>{" "}
+                <h4 className="font-semibold mb-2">Top Prizes</h4>
                 <ul className="space-y-1">
-                  {" "}
-                  <li>1st Place: $5,000</li> <li>2nd Place: $2,000</li>{" "}
-                  <li>3rd Place: $1,000</li> <li>4th-10th: $500 each</li>{" "}
-                </ul>{" "}
-              </div>{" "}
+                  <li>1st Place: $5,000</li>
+                  <li>2nd Place: $2,000</li>
+                  <li>3rd Place: $1,000</li>
+                  <li>4th-10th: $500 each</li>
+                </ul>
+              </div>
               <div>
-                {" "}
-                <h4 className="font-semibold mb-2">Special Prizes</h4>{" "}
+                <h4 className="font-semibold mb-2">Special Prizes</h4>
                 <ul className="space-y-1">
-                  {" "}
-                  <li>Lowest Score: $1,000</li> <li>2nd Lowest: $500</li>{" "}
-                  <li>Random Draw: $250 (5 winners)</li>{" "}
-                </ul>{" "}
-              </div>{" "}
-            </div>{" "}
+                  <li>Lowest Score: $1,000</li>
+                  <li>2nd Lowest: $500</li>
+                  <li>Random Draw: $250 (5 winners)</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </Card>
       </div>
