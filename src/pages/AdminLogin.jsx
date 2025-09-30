@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthContainer from "../components/auth/AuthContainer";
 import LoginForm from "../components/auth/LoginForm";
-import { useAuth } from "../contexts/AuthContext";
+import useAuth from "../hooks/useAuth";
+// import authAPI from "../services/auth";
 
 const AdminLogin = () => {
   const [error, setError] = useState("");
@@ -18,7 +19,7 @@ const AdminLogin = () => {
 
       // Pass isAdmin flag to differentiate admin login
       await login(formData.email, formData.password, true);
-
+      // user is now in context/localStorage, cookie is set by backend
       navigate("/admin/dashboard");
     } catch (err) {
       console.error("Admin login error:", err);

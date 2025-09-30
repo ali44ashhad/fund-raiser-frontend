@@ -42,7 +42,9 @@ export const adminAPI = {
 
   createTournament: async (data) => {
     try {
-      const res = await api.post("/tournaments", data);
+      const res = await api.post("/tournaments", data, {
+        withCredentials: true,
+      });
       return res.data;
     } catch (err) {
       throw new Error(
@@ -166,7 +168,7 @@ export const adminAPI = {
 
   listTickets: async (params = {}) => {
     try {
-      const res = await api.get("/tickets", { params });
+      const res = await api.get("/tickets", { params, withCredentials: true });
       return res.data;
     } catch (err) {
       throw new Error(

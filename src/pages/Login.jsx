@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthContainer from "../components/auth/AuthContainer";
 import LoginForm from "../components/auth/LoginForm";
-import { useAuth } from "../contexts/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+
   const navigate = useNavigate();
 
   // Accept only formData (LoginForm already prevented default)
@@ -18,7 +19,7 @@ const Login = () => {
 
       // normal user login (isAdmin = false)
       await login(formData.email, formData.password, false);
-
+      // user is now in context/localStorage, cookie is set by backend
       navigate("/dashboard");
     } catch (err) {
       console.error("Login error:", err);

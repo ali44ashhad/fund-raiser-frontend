@@ -104,7 +104,8 @@
 
 // export default AdminSidebar;
 
-import { useAuth } from "../../contexts/AuthContext";
+// import { useAuth } from "../../contexts/AuthContext";
+import useAuth from "../../hooks/useAuth";
 import { getInitials } from "../../utils/helpers";
 
 const AdminSidebar = ({ activeTab, setActiveTab }) => {

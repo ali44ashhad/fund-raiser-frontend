@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+// import { useAuth } from "../contexts/AuthContext";
 import Card from "../components/ui/Card";
 import Button from "../components/ui/Button";
 import { formatDate } from "../utils/helpers";
 import ticketsAPI from "../services/tickets"; // new service file
+import useAuth from "../hooks/useAuth";
 
 const Dashboard = () => {
   const { currentUser } = useAuth();

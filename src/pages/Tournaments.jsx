@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
 import adminAPI from "../services/admin";
 import ticketsAPI from "../services/tickets";
 import Button from "../components/ui/Button";
 import { toast } from "react-hot-toast"; // 👈 import toast
+import useAuth from "../hooks/useAuth";
 
 const Tournaments = () => {
   const { currentUser } = useAuth();

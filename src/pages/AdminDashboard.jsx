@@ -117,10 +117,10 @@ import AdminDashboard from "../components/admin/AdminDashboard";
 import UserManagement from "../components/admin/UserManagement";
 import TicketManagement from "../components/admin/TicketManagement";
 import PaymentManagement from "../components/admin/PaymentManagement";
-import { useAuth } from "../contexts/AuthContext";
 import TournamentManagement from "../components/admin/TournamentManagement";
 import ReportManagement from "../components/admin/ReportManagement";
 import SettingsManagement from "../components/admin/SettingsManagement";
+import useAuth from "../hooks/useAuth";
 
 const TABS = {
   DASHBOARD: "dashboard",
@@ -148,6 +148,7 @@ const AdminDashboardPage = () => {
       localStorage.setItem("adminActiveTab", activeTab);
     } catch (e) {
       // ignore storage errors (e.g., private mode)
+      console.log(e);
     }
   }, [activeTab]);
 

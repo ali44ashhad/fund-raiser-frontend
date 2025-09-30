@@ -5,7 +5,7 @@ import paymentAPI from "../services/payment";
 import { api } from "../services/auth";
 import { TICKET_PRICES, TICKET_TYPES } from "../utils/constants";
 import { formatCurrency } from "../utils/helpers";
-import { useAuth } from "../contexts/AuthContext";
+import useAuth from "../hooks/useAuth";
 
 /**
  * Tickets page - full updated version with improved TicketCard layout

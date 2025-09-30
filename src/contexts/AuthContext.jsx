@@ -1,17 +1,17 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
-import { authAPI, api, setAuthToken } from "../services/auth";
+import { useState, useEffect, useCallback } from "react";
+import { AuthContext } from "./AuthContextContext";
 
-const AuthContext = createContext();
+// export const useAuth = () => {
+//   return useContext(AuthContext);
+// };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
+// --- NEW AUTH LOGIC (cookie-based, user in localStorage, no token) ---
+
+import axios from "axios";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://fundraiser-backend-pa9y.onrender.com/api";
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -19,158 +19,88 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  const persistAuth = (token, adminFlag) => {
+  // Save user to localStorage
+  const persistUser = (user, adminFlag) => {
     try {
-      if (token) {
-        localStorage.setItem("token", token);
+      if (user) {
+        console.log("persistUser:", user, adminFlag);
 
-        setAuthToken(token);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("isAdmin", adminFlag ? "true" : "false");
+        setIsAdmin(Boolean(adminFlag));
       }
-      localStorage.setItem("isAdmin", adminFlag ? "true" : "false");
-      setIsAdmin(Boolean(adminFlag));
     } catch (e) {
-      console.warn("persistAuth: localStorage unavailable", e);
+      console.warn("persistUser: localStorage unavailable", e);
     }
   };
 
+  // Login: POST to /auth/admin/login or /auth/player/login, store user in localStorage
   const login = async (email, password, adminFlag = false) => {
+    setAuthError(null);
+    setLoading(true);
     try {
-      // const res = await authAPI.login(email, password, adminFlag);
-      // const { token, user } = res;
-      // setCurrentUser(user ?? null);
-      // persistAuth(token, adminFlag || Boolean(user?.role === "admin"));
-      // return res;
-      const res = await authAPI.login(email, password, adminFlag);
-      const { token, user, raw } = res;
-      // attempt to pick admin/player from raw if user is null
-      const effectiveUser = user ?? raw?.player ?? raw?.admin ?? null;
-
-      setCurrentUser(effectiveUser);
-      persistAuth(
-        token,
-        adminFlag ||
-          Boolean(effectiveUser?.role === "admin") ||
-          Boolean(raw?.admin)
+      const path = `/auth/${adminFlag ? "admin" : "player"}/login`;
+      const response = await axios.post(
+        API_BASE_URL + path,
+        { email, password },
+        { withCredentials: true }
       );
+      console.log("Authcontext login response:", response.data, adminFlag);
+      // user is in response.data.player or response.data.admin
+      const user = response.data?.player || response.data?.admin || null;
+      console.log("Authcontext login user", user);
 
-      return res;
+      setCurrentUser(user);
+      persistUser(user, adminFlag || (user && user.role === "admin"));
+      return user;
     } catch (err) {
-      console.error("login error:", err);
+      setAuthError(
+        err?.response?.data?.message || err?.message || "Login failed"
+      );
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
-  const register = async (userData, adminFlag = false) => {
-    try {
-      const res = await authAPI.register(userData, adminFlag);
-      const { token, user } = res;
-      setCurrentUser(user ?? null);
-      persistAuth(token, adminFlag || Boolean(user?.role === "admin"));
-      return res;
-    } catch (err) {
-      console.error("register error:", err);
-      throw err;
-    }
-  };
-
+  // Logout: remove user from localStorage and reset state
   const logout = useCallback(() => {
     setCurrentUser(null);
     setIsAdmin(false);
     try {
-      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       localStorage.removeItem("isAdmin");
-
-      setAuthToken(null);
     } catch (e) {
       console.warn("logout: localStorage removal failed", e);
     }
   }, []);
 
-  const refreshUser = useCallback(async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-    try {
-      const user = await authAPI.verifyToken(token);
-      setCurrentUser(user);
-      if (user?.role) {
-        setIsAdmin(user.role === "admin");
-        try {
-          localStorage.setItem(
-            "isAdmin",
-            user.role === "admin" ? "true" : "false"
-          );
-        } catch (e) {}
-      }
-      return user;
-    } catch (err) {
-      console.warn("refreshUser failed:", err);
-      logout();
-      return null;
-    }
-  }, [logout]);
-
-  const updateProfile = async (profileData) => {
-    try {
-      const res = await authAPI.updateProfile(profileData);
-      const updated = res?.user ?? res;
-      if (updated) {
-        setCurrentUser(updated);
-      } else {
-        await refreshUser();
-      }
-      return updated;
-    } catch (err) {
-      console.error("updateProfile error:", err);
-      throw err;
-    }
-  };
-
+  // On mount, restore user from localStorage (if cookie is valid, backend will accept requests)
   useEffect(() => {
-    let mounted = true;
-    const init = async () => {
-      setLoading(true);
-      setAuthError(null);
-
-      const token = localStorage.getItem("token");
-      const savedIsAdmin = localStorage.getItem("isAdmin") === "true";
-
-      if (token) {
-        setAuthToken(token);
-      } else {
-        if (mounted) setLoading(false);
-        return;
+    setLoading(true);
+    setAuthError(null);
+    try {
+      const userStr = localStorage.getItem("user");
+      const adminFlag = localStorage.getItem("isAdmin") === "true";
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        // Determine admin status
+        const effectiveIsAdmin = adminFlag || (user && user.role === "admin");
+        setCurrentUser(user);
+        setIsAdmin(effectiveIsAdmin);
+        // Always update localStorage to keep isAdmin in sync
+        localStorage.setItem("isAdmin", effectiveIsAdmin ? "true" : "false");
       }
+    } catch (e) {
+      console.log(e);
 
-      try {
-        const user = await authAPI.verifyToken(token);
-        if (!mounted) return;
-        setCurrentUser(user ?? null);
-
-        if (user?.role) {
-          setIsAdmin(user.role === "admin");
-          try {
-            localStorage.setItem(
-              "isAdmin",
-              user.role === "admin" ? "true" : "false"
-            );
-          } catch (e) {}
-        } else {
-          setIsAdmin(savedIsAdmin);
-        }
-      } catch (err) {
-        console.warn("token verify failed:", err);
-        logout();
-        if (mounted) setAuthError(err?.message ?? "Session expired");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    init();
-    return () => {
-      mounted = false;
-    };
-  }, [logout, refreshUser]);
+      setCurrentUser(null);
+      setIsAdmin(false);
+      localStorage.removeItem("isAdmin");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const value = {
     currentUser,
@@ -178,10 +108,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     authError,
     login,
-    register,
     logout,
-    refreshUser,
-    updateProfile,
   };
 
   return (
