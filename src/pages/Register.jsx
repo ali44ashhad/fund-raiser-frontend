@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import AuthContainer from "../components/auth/AuthContainer";
 import RegisterForm from "../components/auth/RegisterForm";
 import useAuth from "../hooks/useAuth";
-import authAPI from "../services/auth";
+// import authAPI from "../services/auth";
 // import { useAuth } from "../contexts/AuthContext";
 
 const Register = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { register } = authAPI();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   // Accept only formData

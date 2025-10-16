@@ -382,6 +382,7 @@ const TicketsPage = () => {
 
   const handleSuccess = (payload) => {
     alert("Ticket(s) purchased / created successfully!");
+    console.log("purchase success:", payload);
     // optionally refresh or navigate
   };
 

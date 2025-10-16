@@ -61,7 +61,7 @@ const RegisterForm = ({ onSubmit, loading = false }) => {
 
     if (!formData.phone || !formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
-    } else if (!/^\+?[\d\s\-\(\)]{7,20}$/.test(formData.phone.trim())) {
+    } else if (!/^\+?[\d\s\-()]{7,20}$/.test(formData.phone.trim())) {
       newErrors.phone = "Please enter a valid phone number";
     }
 

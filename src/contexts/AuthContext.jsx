@@ -63,6 +63,29 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (userData, adminFlag = false) => {
+    setAuthError(null);
+    setLoading(true);
+    try {
+      const path = `/auth/${adminFlag ? "admin" : "player"}/register`;
+      const response = await axios.post(API_BASE_URL + path, userData, {
+        withCredentials: true,
+      });
+      console.log("Authcontext register response:", response.data, adminFlag);
+      const user = response.data?.player || response.data?.admin || null;
+      setCurrentUser(user);
+      persistUser(user, adminFlag || (user && user.role === "admin"));
+      return user;
+    } catch (err) {
+      setAuthError(
+        err?.response?.data?.message || err?.message || "Registration failed"
+      );
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Logout: remove user from localStorage and reset state
   const logout = useCallback(() => {
     setCurrentUser(null);
@@ -108,6 +131,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     authError,
     login,
+    register,
     logout,
   };
 

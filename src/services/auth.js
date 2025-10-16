@@ -47,29 +47,29 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// also ensure default is set in case someone uses api after runtime changes
-api.defaults.withCredentials = true;
+// // also ensure default is set in case someone uses api after runtime changes
+// api.defaults.withCredentials = true;
 
-export const setAuthToken = (token) => {
-  if (token) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common["Authorization"];
-  }
-};
+// export const setAuthToken = (token) => {
+//   if (token) {
+//     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+//   } else {
+//     delete api.defaults.headers.common["Authorization"];
+//   }
+// };
 
-api.interceptors.request.use(
-  (config) => {
-    if (!config.headers?.Authorization) {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// api.interceptors.request.use(
+//   (config) => {
+//     if (!config.headers?.Authorization) {
+//       const token = localStorage.getItem("token");
+//       if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//       }
+//     }
+//     return config;
+//   },
+//   (error) => Promise.reject(error)
+// );
 
 // api.interceptors.response.use(
 //   (response) => response,
@@ -87,31 +87,31 @@ api.interceptors.request.use(
 //   }
 // );
 
-const rolePath = (isAdmin) => (isAdmin ? "admin" : "player");
+// const rolePath = (isAdmin) => (isAdmin ? "admin" : "player");
 
-const pickTokenAndUser = (data = {}) => {
-  // handle many server shapes: { token, user }, { token, player }, { accessToken, player }, { success, player, token? }
-  const token =
-    data.token ||
-    data.accessToken ||
-    data.access_token ||
-    data.jwt ||
-    data.sessionToken ||
-    null;
+// const pickTokenAndUser = (data = {}) => {
+//   // handle many server shapes: { token, user }, { token, player }, { accessToken, player }, { success, player, token? }
+//   const token =
+//     data.token ||
+//     data.accessToken ||
+//     data.access_token ||
+//     data.jwt ||
+//     data.sessionToken ||
+//     null;
 
-  // user object may be under different keys
-  const user =
-    data.user ||
-    data.player ||
-    data.admin || // new added
-    data.player?.player ||
-    data.admin?.admin || // added new
-    data.data?.user ||
-    data.data?.player ||
-    null;
+//   // user object may be under different keys
+//   const user =
+//     data.user ||
+//     data.player ||
+//     data.admin || // new added
+//     data.player?.player ||
+//     data.admin?.admin || // added new
+//     data.data?.user ||
+//     data.data?.player ||
+//     null;
 
-  return { token, user };
-};
+//   return { token, user };
+// };
 
 export const authAPI = {
   // login: async (email, password, isAdmin = false) => {
@@ -123,12 +123,9 @@ export const authAPI = {
   //       { email, password },
   //       { withCredentials: true }
   //     );
-
   //     console.log("login response.data:", response.data);
-
   //     // robust extraction
   //     const { token, user } = pickTokenAndUser(response.data);
-
   //     if (token) {
   //       try {
   //         localStorage.setItem("token", token);
@@ -140,14 +137,12 @@ export const authAPI = {
   //       try {
   //         localStorage.setItem("isAdmin", derivedIsAdmin ? "true" : "false");
   //       } catch (e) {}
-
   //       setAuthToken(token);
   //     } else {
   //       // If backend uses cookies (httpOnly session) instead of returning a token,
   //       // we can't set Authorization header — we rely on cookies (we set withCredentials above).
   //       console.log("No token in response — assuming cookie/session auth");
   //     }
-
   //     return { token, user: user ?? null, raw: response.data };
   //   } catch (error) {
   //     // try to pull message safely
@@ -159,49 +154,41 @@ export const authAPI = {
   //     throw new Error(message);
   //   }
   // },
-
-  register: async (userData, isAdmin = false) => {
-    try {
-      const path = `/auth/${rolePath(isAdmin)}/register`;
-      const response = await api.post(path, userData, {
-        withCredentials: true,
-      });
-
-      console.log("register response.data:", response.data);
-
-      const { token, user } = pickTokenAndUser(response.data);
-
-      if (token) {
-        try {
-          localStorage.setItem("token", token);
-        } catch (e) {
-          console.warn("Could not persist token to localStorage", e);
-        }
-        const derivedIsAdmin =
-          Boolean(user?.role === "admin") || Boolean(isAdmin);
-        try {
-          localStorage.setItem("isAdmin", derivedIsAdmin ? "true" : "false");
-        } catch (e) {}
-        setAuthToken(token);
-      }
-
-      return { token, user: user ?? null, raw: response.data };
-    } catch (error) {
-      const message =
-        error?.response?.data?.message ||
-        error?.response?.data?.error ||
-        error?.message ||
-        "Registration failed";
-      throw new Error(message);
-    }
-  },
-
+  // register: async (userData, isAdmin = false) => {
+  //   try {
+  //     const path = `/auth/${rolePath(isAdmin)}/register`;
+  //     const response = await api.post(path, userData, {
+  //       withCredentials: true,
+  //     });
+  //     console.log("register response.data:", response.data);
+  //     const { token, user } = pickTokenAndUser(response.data);
+  //     if (token) {
+  //       try {
+  //         localStorage.setItem("token", token);
+  //       } catch (e) {
+  //         console.warn("Could not persist token to localStorage", e);
+  //       }
+  //       const derivedIsAdmin =
+  //         Boolean(user?.role === "admin") || Boolean(isAdmin);
+  //       try {
+  //         localStorage.setItem("isAdmin", derivedIsAdmin ? "true" : "false");
+  //       } catch (e) {}
+  //       setAuthToken(token);
+  //     }
+  //     return { token, user: user ?? null, raw: response.data };
+  //   } catch (error) {
+  //     const message =
+  //       error?.response?.data?.message ||
+  //       error?.response?.data?.error ||
+  //       error?.message ||
+  //       "Registration failed";
+  //     throw new Error(message);
+  //   }
+  // },
   // verifyToken: async (token) => {
   //   try {
   //     if (!token) throw new Error("No token provided");
-
   //     const headers = { Authorization: `Bearer ${token}` };
-
   //     // try generic endpoint first (some backends expose /auth/verify)
   //     try {
   //       const res = await api.get(`/auth/verify`, { headers });
@@ -210,7 +197,6 @@ export const authAPI = {
   //     } catch (err) {
   //       // fallback to role-specific path
   //     }
-
   //     const isAdminLocal = localStorage.getItem("isAdmin") === "true";
   //     const path = `/auth/${isAdminLocal ? "admin" : "player"}/verify`;
   //     const resp = await api.get(path, { headers });
@@ -221,7 +207,6 @@ export const authAPI = {
   //     throw new Error(message);
   //   }
   // },
-
   // ... other functions unchanged, but using api instance (which has withCredentials)
   // forgotPassword: async (email) => {
   //   try {
@@ -235,7 +220,6 @@ export const authAPI = {
   //     );
   //   }
   // },
-
   // resetPassword: async (token, newPassword) => {
   //   try {
   //     const response = await api.post("/auth/reset-password", {
@@ -251,7 +235,6 @@ export const authAPI = {
   //     );
   //   }
   // },
-
   // getProfile: async () => {
   //   try {
   //     const response = await api.get("/user/profile");
@@ -264,7 +247,6 @@ export const authAPI = {
   //     );
   //   }
   // },
-
   // updateProfile: async (profileData) => {
   //   try {
   //     const response = await api.put("/user/profile", profileData);
