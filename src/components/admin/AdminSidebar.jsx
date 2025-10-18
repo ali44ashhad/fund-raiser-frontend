@@ -13,8 +13,7 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
     { id: "tickets", label: "Ticket Management", icon: "🎫" },
     { id: "payments", label: "Payment Management", icon: "💳" },
     { id: "tournaments", label: "Tournaments", icon: "🏆" },
-    { id: "reports", label: "Reports", icon: "📈" },
-    { id: "settings", label: "Settings", icon: "⚙️" },
+    { id: "reports", label: "Reports", icon: "📈" }, 
   ];
 
   return (
