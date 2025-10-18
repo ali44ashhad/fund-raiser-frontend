@@ -263,12 +263,11 @@ const Header = () => {
       <header className="sticky top-0 z-50 bg-[#0B1D13] border-b border-[#4B5320] shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <div className="h-8 w-8 bg-[#FF1E1E] rounded-md flex items-center justify-center mr-2" />
+            
+            <a href="/" className="flex items-center"><div className="h-8 w-8 bg-[#FF1E1E] rounded-md flex items-center justify-center mr-2" />
               <span className="text-xl font-bold text-[#FF7F11]">
                 Sports Fundraiser
-              </span>
-            </Link>
+              </span></a>
             <div className="hidden md:flex space-x-4">
               <div className="w-24 h-6 bg-[#1f1f1f] rounded" />
             </div>
@@ -283,7 +282,7 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
+            <a href="/"  className="flex items-center"> 
               <div className="h-8 w-8 bg-[#FF1E1E] rounded-md flex items-center justify-center mr-2">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -304,7 +303,7 @@ const Header = () => {
               <span className="text-xl font-bold text-[#FF7F11]">
                 Sports Fundraiser
               </span>
-            </Link>
+         </a>
           </div>
 
           <nav className="hidden md:flex space-x-8" aria-label="Primary">

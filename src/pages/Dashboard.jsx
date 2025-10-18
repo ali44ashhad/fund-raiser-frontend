@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-// import { useAuth } from "../contexts/AuthContext";
-import Card from "../components/ui/Card";
-import Button from "../components/ui/Button";
+import { ticketService } from "../services/ticketService";
+import { tournamentService } from "../services/tournamentService";
 import { formatDate } from "../utils/helpers";
-import ticketsAPI from "../services/tickets"; // new service file
 import useAuth from "../hooks/useAuth";
 
 const Dashboard = () => {
@@ -12,106 +10,136 @@ const Dashboard = () => {
   const [userTickets, setUserTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const mockTickets = [
-    {
-      id: "1",
-      number: "T-12345",
-      tournament: "Super Bowl Fundraiser",
-      teams: [
-        "AFC #1 - Kansas City",
-        "NFC #2 - San Francisco",
-        "AFC #3 - Buffalo",
-      ],
-      status: "Active",
-      purchaseDate: "2023-01-15T10:00:00Z",
-      totalPoints: 87,
-    },
-    {
-      id: "2",
-      number: "T-12346",
-      tournament: "Super Bowl Fundraiser",
-      teams: [
-        "NFC #1 - Philadelphia",
-        "AFC #2 - Cincinnati",
-        "NFC #3 - Dallas",
-      ],
-      status: "Active",
-      purchaseDate: "2023-01-10T10:00:00Z",
-      totalPoints: 92,
-    },
-  ];
+  const [stats, setStats] = useState({
+    totalTickets: 0,
+    totalPoints: 0,
+    tournamentsCount: 0
+  });
 
   useEffect(() => {
-    let mounted = true;
-
-    const fetchUserTickets = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        // Try to call ticketsAPI.getUserTickets(userId)
-        let res = null;
-        try {
-          res = await ticketsAPI.getUserTickets(currentUser?.id);
-        } catch (apiErr) {
-          // If the API call fails, we'll log and fall back below
-          console.warn(
-            "ticketsAPI.getUserTickets failed:",
-            apiErr.message || apiErr
-          );
-        }
-
-        // Normalize possible response shapes to an array
-        let data = res ?? (res && res.data) ?? (res && res.tickets) ?? null;
-
-        // If api returned something wrapped, try to extract array
-        if (data && !Array.isArray(data)) {
-          if (Array.isArray(data.items)) data = data.items;
-          else if (Array.isArray(data.results)) data = data.results;
-          else if (Array.isArray(data.tickets)) data = data.tickets;
-          else data = null; // couldn't normalize
-        }
-
-        if (!data) {
-          // if API didn't respond with usable data, use mock
-          data = mockTickets;
-          setError(
-            (prev) =>
-              prev || "Could not load live tickets — showing sample data."
-          );
-        }
-
-        // Ensure normalized shape for the UI
-        const normalized = (Array.isArray(data) ? data : []).map((t, idx) => ({
-          id: t.id ?? t._id ?? String(idx),
-          number: t.number ?? t.ticketNumber ?? `T-${10000 + idx}`,
-          tournament: t.tournament ?? t.eventName ?? t.event ?? "Tournament",
-          teams: Array.isArray(t.teams) ? t.teams : t.teams?.split?.(",") ?? [],
-          status: t.status ?? t.state ?? "Active",
-          purchaseDate:
-            t.purchaseDate ?? t.createdAt ?? t.date ?? new Date().toISOString(),
-          totalPoints: Number(t.totalPoints ?? t.points ?? 0),
-          raw: t,
-        }));
-
-        if (mounted) setUserTickets(normalized);
-      } catch (err) {
-        console.error("Failed to fetch user tickets (unexpected):", err);
-        if (mounted) {
-          setError("Failed to load tickets — showing sample data.");
-          setUserTickets(mockTickets);
-        }
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
     fetchUserTickets();
-    return () => {
-      mounted = false;
-    };
   }, [currentUser]);
+
+  const fetchUserTickets = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      let ticketsData = [];
+
+      // Try to fetch user's tickets from API
+      try {
+        if (currentUser?._id) {
+          ticketsData = await ticketService.getUserTickets(currentUser._id);
+          console.log("User tickets API response:", ticketsData);
+        }
+      } catch (err) {
+        console.log("Could not fetch user tickets from API");
+      }
+
+      // If no tickets from user endpoint, try to get all tickets and filter
+      if (!ticketsData || ticketsData.length === 0) {
+        try {
+          const allTickets = await ticketService.getAllTickets();
+          // Filter tickets for current user
+          ticketsData = allTickets.filter(ticket => 
+            ticket.owner?._id === currentUser?._id || 
+            ticket.owner === currentUser?._id
+          );
+        } catch (err) {
+          console.log("Could not fetch all tickets");
+        }
+      }
+
+      // Normalize ticket data
+      const normalizedTickets = ticketsData.map((ticket, idx) => normalizeTicketData(ticket, idx));
+      
+      setUserTickets(normalizedTickets);
+
+      // Calculate stats
+      const totalTickets = normalizedTickets.length;
+      const totalPoints = normalizedTickets.reduce((sum, ticket) => sum + (ticket.totalPoints || 0), 0);
+      const tournamentsCount = new Set(normalizedTickets.map(ticket => ticket.tournamentId)).size;
+
+      setStats({
+        totalTickets,
+        totalPoints,
+        tournamentsCount
+      });
+
+    } catch (err) {
+      console.error("Failed to fetch user tickets:", err);
+      setError("Failed to load your tickets. Please try again.");
+      setUserTickets([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper function to normalize ticket data
+  const normalizeTicketData = (ticket, index) => {
+    console.log("Raw ticket data:", ticket);
+    
+    // Extract teams properly
+    let teamsArray = [];
+    if (Array.isArray(ticket.teams)) {
+      teamsArray = ticket.teams.map(team => {
+        if (typeof team === 'string') return team;
+        return `${team.seed || team.seedNumber || 'Unknown'}${team.name ? ` - ${team.name}` : ''}`;
+      });
+    }
+
+    return {
+      id: ticket._id || ticket.id || `ticket-${index}`,
+      number: ticket.ticketNumber || ticket.number || `T-${10000 + index}`,
+      tournament: ticket.tournament?.name || "Unknown Tournament",
+      tournamentId: ticket.tournament?._id || ticket.tournament,
+      teams: teamsArray,
+      status: ticket.status || 'Active',
+      purchaseDate: ticket.purchaseDate || ticket.createdAt || new Date().toISOString(),
+      totalPoints: ticket.totalPoints || 0,
+      accessCode: ticket.accessCode,
+      exchangesLeft: ticket.exchangesLeft !== undefined ? ticket.exchangesLeft : 5,
+      raw: ticket,
+    };
+  };
+
+  const handleExportTicket = (ticket) => {
+    const exportData = {
+      ticketNumber: ticket.number,
+      accessCode: ticket.accessCode,
+      tournament: ticket.tournament,
+      teams: ticket.teams,
+      totalPoints: ticket.totalPoints,
+      status: ticket.status,
+      purchaseDate: ticket.purchaseDate,
+      exchangesLeft: ticket.exchangesLeft
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${ticket.number}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleViewDetails = (ticket) => {
+    const details = `
+Ticket Number: ${ticket.number}
+Access Code: ${ticket.accessCode || 'N/A'}
+Tournament: ${ticket.tournament}
+Status: ${ticket.status}
+Total Points: ${ticket.totalPoints}
+Exchanges Left: ${ticket.exchangesLeft}
+Teams: ${ticket.teams.join(', ') || 'No teams assigned'}
+Purchase Date: ${formatDate(ticket.purchaseDate)}
+`;
+    alert(details);
+  };
 
   if (loading) {
     return (
@@ -122,14 +150,10 @@ const Dashboard = () => {
           role="status"
           aria-label="Loading"
         />
+        <span className="ml-3 text-gray-400">Loading your tickets...</span>
       </div>
     );
   }
-
-  const totalPoints = userTickets.reduce(
-    (acc, t) => acc + (t.totalPoints || 0),
-    0
-  );
 
   return (
     <div className="min-h-screen bg-black py-8">
@@ -149,46 +173,53 @@ const Dashboard = () => {
           <div
             role="alert"
             aria-live="polite"
-            className="mb-6 rounded-md bg-[#2a1b18] border border-[#5a2a1a] text-[#FF7F11] p-3"
+            className="mb-6 rounded-md bg-red-500/20 border border-red-500/50 text-red-400 p-4"
           >
-            {error}
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+              </svg>
+              {error}
+            </div>
           </div>
         )}
 
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
+          <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-400 mb-2">
               Active Tickets
             </h3>
             <p className="text-3xl font-bold text-[#00E5FF]">
-              {userTickets.length}
+              {stats.totalTickets}
             </p>
-          </Card>
+          </div>
 
-          <Card>
+          <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-400 mb-2">
               Total Points
             </h3>
-            <p className="text-3xl font-bold text-[#FF7F11]">{totalPoints}</p>
-          </Card>
+            <p className="text-3xl font-bold text-[#FF7F11]">{stats.totalPoints}</p>
+          </div>
 
-          <Card>
+          <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-400 mb-2">
               Tournaments
             </h3>
             <p className="text-3xl font-bold text-[#A78BFA]">
-              {new Set(userTickets.map((t) => t.tournament)).size}
+              {stats.tournamentsCount}
             </p>
-          </Card>
+          </div>
         </div>
 
         {/* Tickets */}
-        <Card className="mb-8">
+        <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-[#00E5FF]">Your Tickets</h2>
-            <Link to="/tickets">
-              <Button variant="outline">Buy More Tickets</Button>
+            <Link to="/tournaments">
+              <button className="px-4 py-2 border border-[#2A2A2A] text-gray-300 rounded-md hover:bg-[#2A2A2A] transition-colors">
+                Buy More Tickets
+              </button>
             </Link>
           </div>
 
@@ -217,7 +248,9 @@ const Dashboard = () => {
                 Purchase your first ticket to get started!
               </p>
               <Link to="/tournaments">
-                <Button variant="primary">Browse Tournaments</Button>
+                <button className="px-6 py-2 bg-[#FF7F11] text-black font-medium rounded-md hover:bg-[#e6710f] transition-colors">
+                  Browse Tournaments
+                </button>
               </Link>
             </div>
           ) : (
@@ -225,7 +258,7 @@ const Dashboard = () => {
               {userTickets.map((ticket) => (
                 <article
                   key={ticket.id}
-                  className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6"
+                  className="bg-[#1C1C1E] border border-[#2A2A2A] rounded-lg p-6 hover:border-[#3A3A3A] transition-colors"
                   aria-labelledby={`ticket-${ticket.id}-title`}
                 >
                   <div className="flex justify-between items-start mb-4">
@@ -237,14 +270,24 @@ const Dashboard = () => {
                         {ticket.number}
                       </h3>
                       <p className="text-gray-400">{ticket.tournament}</p>
+                      {ticket.accessCode && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          Access Code: {ticket.accessCode}
+                        </p>
+                      )}
                     </div>
 
-                    <span
-                      className="px-3 py-1 bg-[#4B5320] text-white text-sm font-medium rounded-full"
-                      aria-label={`Status: ${ticket.status}`}
-                    >
-                      {ticket.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="px-3 py-1 bg-[#4B5320] text-white text-sm font-medium rounded-full"
+                        aria-label={`Status: ${ticket.status}`}
+                      >
+                        {ticket.status}
+                      </span>
+                      <span className="px-2 py-1 bg-[#2A2A2A] text-gray-400 text-xs rounded-full">
+                        {ticket.exchangesLeft} exchanges left
+                      </span>
+                    </div>
                   </div>
 
                   <div className="mb-4">
@@ -254,19 +297,19 @@ const Dashboard = () => {
                         ticket.teams.map((team, index) => (
                           <span
                             key={index}
-                            className="px-3 py-1 bg-[#1f2a25] text-gray-300 text-sm rounded-md"
+                            className="px-3 py-1 bg-[#2A2A2A] text-[#FF7F11] text-sm rounded-md"
                           >
                             {team}
                           </span>
                         ))
                       ) : (
-                        <span className="text-gray-500 text-sm">No teams</span>
+                        <span className="text-gray-500 text-sm">No teams assigned yet</span>
                       )}
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <div>
+                    <div className="text-sm">
                       <span className="text-gray-400">Total Points: </span>
                       <span className="text-[#00E5FF] font-semibold">
                         {ticket.totalPoints}
@@ -278,37 +321,29 @@ const Dashboard = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <Button variant="outline">View Details</Button>
-                      <Button
-                        variant="secondary"
-                        onClick={() => {
-                          const blob = new Blob(
-                            [JSON.stringify(ticket.raw ?? ticket, null, 2)],
-                            {
-                              type: "application/json",
-                            }
-                          );
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = `${ticket.number}.json`;
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        }}
+                      <button 
+                        onClick={() => handleViewDetails(ticket)}
+                        className="px-4 py-2 border border-[#2A2A2A] text-gray-300 rounded-md hover:bg-[#2A2A2A] transition-colors"
+                      >
+                        View Details
+                      </button>
+                      <button
+                        onClick={() => handleExportTicket(ticket)}
+                        className="px-4 py-2 bg-[#2A2A2A] text-gray-300 rounded-md hover:bg-[#3A3A3A] transition-colors"
                       >
                         Export
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 </article>
               ))}
             </div>
           )}
-        </Card>
+        </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+          <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6">
             <h3 className="text-xl font-semibold text-[#00E5FF] mb-4">
               Leaderboard
             </h3>
@@ -316,11 +351,13 @@ const Dashboard = () => {
               See how you stack up against other players.
             </p>
             <Link to="/leaderboard">
-              <Button variant="outline">View Leaderboard</Button>
+              <button className="px-4 py-2 border border-[#2A2A2A] text-gray-300 rounded-md hover:bg-[#2A2A2A] transition-colors">
+                View Leaderboard
+              </button>
             </Link>
-          </Card>
+          </div>
 
-          <Card>
+          <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6">
             <h3 className="text-xl font-semibold text-[#FF7F11] mb-4">
               Tournament Rules
             </h3>
@@ -328,9 +365,11 @@ const Dashboard = () => {
               Review the rules and how to win prizes.
             </p>
             <Link to="/rules">
-              <Button variant="outline">Read Rules</Button>
+              <button className="px-4 py-2 border border-[#2A2A2A] text-gray-300 rounded-md hover:bg-[#2A2A2A] transition-colors">
+                Read Rules
+              </button>
             </Link>
-          </Card>
+          </div>
         </div>
       </div>
     </div>
