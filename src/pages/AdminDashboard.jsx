@@ -117,19 +117,20 @@ import AdminDashboard from "../components/admin/AdminDashboard";
 import UserManagement from "../components/admin/UserManagement";
 import TicketManagement from "../components/admin/TicketManagement";
 import PaymentManagement from "../components/admin/PaymentManagement";
-import TournamentManagement from "../components/admin/TournamentManagement";
-import ReportManagement from "../components/admin/ReportManagement";
+import TournamentManagement from "../components/admin/TournamentManagement"; 
 import SettingsManagement from "../components/admin/SettingsManagement";
 import useAuth from "../hooks/useAuth";
+import TeamsManagement from "../components/admin/TeamsManagement";
+import ScoreManagement from "../components/admin/ScoreManagement";
 
 const TABS = {
   DASHBOARD: "dashboard",
   USERS: "users",
   TICKETS: "tickets",
   PAYMENTS: "payments",
-  TOURNAMENTS: "tournaments",
-  REPORTS: "reports",
-  SETTINGS: "settings",
+  TOURNAMENTS: "tournaments", 
+  TEAMS: "teams",
+  SCORES: "scores",
 };
 
 const AdminDashboardPage = () => {
@@ -186,11 +187,13 @@ const AdminDashboardPage = () => {
         return <PaymentManagement />;
       // placeholders for future tabs
       case TABS.TOURNAMENTS:
-        return <TournamentManagement />;
-      case TABS.REPORTS:
-        return <ReportManagement />;
+        return <TournamentManagement />; 
       case TABS.SETTINGS:
         return <SettingsManagement />;
+      case TABS.TEAMS:
+        return <TeamsManagement />;
+      case TABS.SCORES:
+        return <ScoreManagement />;
       default:
         return <AdminDashboard />;
     }

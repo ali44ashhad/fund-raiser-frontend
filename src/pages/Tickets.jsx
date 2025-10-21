@@ -151,7 +151,9 @@ const PurchaseModal = ({ open, onClose, tournament, category, onSuccess }) => {
           teamsPerTicket,
           quantity,
         };
+        console.log ("testing" , payload)
         const res = await api.post("/tickets/create", payload);
+        console.log ("testing 2" , res)
         onSuccess(res.data ?? res);
         onClose();
         return;

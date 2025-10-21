@@ -1,5 +1,3 @@
-
-
 // import { useAuth } from "../../contexts/AuthContext";
 import useAuth from "../../hooks/useAuth";
 import { getInitials } from "../../utils/helpers";
@@ -12,8 +10,9 @@ const AdminSidebar = ({ activeTab, setActiveTab }) => {
     { id: "users", label: "User Management", icon: "👥" },
     { id: "tickets", label: "Ticket Management", icon: "🎫" },
     { id: "payments", label: "Payment Management", icon: "💳" },
-    { id: "tournaments", label: "Tournaments", icon: "🏆" },
-    { id: "reports", label: "Reports", icon: "📈" }, 
+    { id: "tournaments", label: "Tournaments", icon: "🏆" }, 
+    { id: "teams", label: "Teams Management", icon: "👥" }, 
+    { id: "scores", label: "Scores Management", icon: "📈" }, 
   ];
 
   return (

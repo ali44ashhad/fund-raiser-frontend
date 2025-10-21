@@ -144,7 +144,7 @@ class TicketService {
   // Get user tickets
   async getUserTickets(userId) {
     try {
-      const response = await api.get(`/tickets/user/${userId}`);
+      const response = await api.get(`/tickets/getTicket?id=${userId}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching user tickets:", error);
