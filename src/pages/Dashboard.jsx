@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ticketService } from "../services/ticketService";
-import { tournamentService } from "../services/tournamentService";
+// import { tournamentService } from "../services/tournamentService";
 import { formatDate } from "../utils/helpers";
 import useAuth from "../hooks/useAuth";
 
@@ -10,11 +10,11 @@ const Dashboard = () => {
   const [userTickets, setUserTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [stats, setStats] = useState({
-    totalTickets: 0,
-    totalPoints: 0,
-    tournamentsCount: 0
-  });
+  // const [stats, setStats] = useState({
+  //   totalTickets: 0,
+  //   totalPoints: 0,
+  //   tournamentsCount: 0,
+  // });
 
   useEffect(() => {
     fetchUserTickets();
@@ -29,44 +29,45 @@ const Dashboard = () => {
 
       // Try to fetch user's tickets from API
       try {
-        if (currentUser?._id) {
-          ticketsData = await ticketService.getUserTickets(currentUser._id);
+        console.log("USERRRRR", currentUser);
+
+        if (currentUser?.id) {
+          ticketsData = await ticketService.getUserTickets(currentUser.id);
           console.log("User tickets API response:", ticketsData);
         }
       } catch (err) {
         console.log("Could not fetch user tickets from API");
       }
 
-      // If no tickets from user endpoint, try to get all tickets and filter
-      if (!ticketsData || ticketsData.length === 0) {
-        try {
-          const allTickets = await ticketService.getAllTickets();
-          // Filter tickets for current user
-          ticketsData = allTickets.filter(ticket => 
-            ticket.owner?._id === currentUser?._id || 
-            ticket.owner === currentUser?._id
-          );
-        } catch (err) {
-          console.log("Could not fetch all tickets");
-        }
-      }
+      // // If no tickets from user endpoint, try to get all tickets and filter
+      // if (!ticketsData || ticketsData.length === 0) {
+      //   try {
+      //     const allTickets = await ticketService.getAllTickets();
+      //     // Filter tickets for current user
+      //     ticketsData = allTickets.filter(ticket =>
+      //       ticket.owner?._id === currentUser?._id ||
+      //       ticket.owner === currentUser?._id
+      //     );
+      //   } catch (err) {
+      //     console.log("Could not fetch all tickets");
+      //   }
+      // }
 
-      // Normalize ticket data
-      const normalizedTickets = ticketsData.map((ticket, idx) => normalizeTicketData(ticket, idx));
-      
-      setUserTickets(normalizedTickets);
+      // // Normalize ticket data
+      // const normalizedTickets = ticketsData.map((ticket, idx) => normalizeTicketData(ticket, idx));
 
-      // Calculate stats
-      const totalTickets = normalizedTickets.length;
-      const totalPoints = normalizedTickets.reduce((sum, ticket) => sum + (ticket.totalPoints || 0), 0);
-      const tournamentsCount = new Set(normalizedTickets.map(ticket => ticket.tournamentId)).size;
+      // setUserTickets(normalizedTickets);
 
-      setStats({
-        totalTickets,
-        totalPoints,
-        tournamentsCount
-      });
+      // // Calculate stats
+      // const totalTickets = normalizedTickets.length;
+      // const totalPoints = normalizedTickets.reduce((sum, ticket) => sum + (ticket.totalPoints || 0), 0);
+      // const tournamentsCount = new Set(normalizedTickets.map(ticket => ticket.tournamentId)).size;
 
+      // setStats({
+      //   totalTickets,
+      //   totalPoints,
+      //   tournamentsCount
+      // });
     } catch (err) {
       console.error("Failed to fetch user tickets:", err);
       setError("Failed to load your tickets. Please try again.");
@@ -77,32 +78,36 @@ const Dashboard = () => {
   };
 
   // Helper function to normalize ticket data
-  const normalizeTicketData = (ticket, index) => {
-    console.log("Raw ticket data:", ticket);
-    
-    // Extract teams properly
-    let teamsArray = [];
-    if (Array.isArray(ticket.teams)) {
-      teamsArray = ticket.teams.map(team => {
-        if (typeof team === 'string') return team;
-        return `${team.seed || team.seedNumber || 'Unknown'}${team.name ? ` - ${team.name}` : ''}`;
-      });
-    }
+  // const normalizeTicketData = (ticket, index) => {
+  //   console.log("Raw ticket data:", ticket);
 
-    return {
-      id: ticket._id || ticket.id || `ticket-${index}`,
-      number: ticket.ticketNumber || ticket.number || `T-${10000 + index}`,
-      tournament: ticket.tournament?.name || "Unknown Tournament",
-      tournamentId: ticket.tournament?._id || ticket.tournament,
-      teams: teamsArray,
-      status: ticket.status || 'Active',
-      purchaseDate: ticket.purchaseDate || ticket.createdAt || new Date().toISOString(),
-      totalPoints: ticket.totalPoints || 0,
-      accessCode: ticket.accessCode,
-      exchangesLeft: ticket.exchangesLeft !== undefined ? ticket.exchangesLeft : 5,
-      raw: ticket,
-    };
-  };
+  //   // Extract teams properly
+  //   let teamsArray = [];
+  //   if (Array.isArray(ticket.teams)) {
+  //     teamsArray = ticket.teams.map((team) => {
+  //       if (typeof team === "string") return team;
+  //       return `${team.seed || team.seedNumber || "Unknown"}${
+  //         team.name ? ` - ${team.name}` : ""
+  //       }`;
+  //     });
+  //   }
+
+  //   return {
+  //     id: ticket._id || ticket.id || `ticket-${index}`,
+  //     number: ticket.ticketNumber || ticket.number || `T-${10000 + index}`,
+  //     tournament: ticket.tournament?.name || "Unknown Tournament",
+  //     tournamentId: ticket.tournament?._id || ticket.tournament,
+  //     teams: teamsArray,
+  //     status: ticket.status || "Active",
+  //     purchaseDate:
+  //       ticket.purchaseDate || ticket.createdAt || new Date().toISOString(),
+  //     totalPoints: ticket.totalPoints || 0,
+  //     accessCode: ticket.accessCode,
+  //     exchangesLeft:
+  //       ticket.exchangesLeft !== undefined ? ticket.exchangesLeft : 5,
+  //     raw: ticket,
+  //   };
+  // };
 
   const handleExportTicket = (ticket) => {
     const exportData = {
@@ -113,7 +118,7 @@ const Dashboard = () => {
       totalPoints: ticket.totalPoints,
       status: ticket.status,
       purchaseDate: ticket.purchaseDate,
-      exchangesLeft: ticket.exchangesLeft
+      exchangesLeft: ticket.exchangesLeft,
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
@@ -130,12 +135,12 @@ const Dashboard = () => {
   const handleViewDetails = (ticket) => {
     const details = `
 Ticket Number: ${ticket.number}
-Access Code: ${ticket.accessCode || 'N/A'}
+Access Code: ${ticket.accessCode || "N/A"}
 Tournament: ${ticket.tournament}
 Status: ${ticket.status}
 Total Points: ${ticket.totalPoints}
 Exchanges Left: ${ticket.exchangesLeft}
-Teams: ${ticket.teams.join(', ') || 'No teams assigned'}
+Teams: ${ticket.teams.join(", ") || "No teams assigned"}
 Purchase Date: ${formatDate(ticket.purchaseDate)}
 `;
     alert(details);
@@ -176,15 +181,24 @@ Purchase Date: ${formatDate(ticket.purchaseDate)}
             className="mb-6 rounded-md bg-red-500/20 border border-red-500/50 text-red-400 p-4"
           >
             <div className="flex items-center">
-              <svg className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+              <svg
+                className="h-5 w-5 mr-2"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                  clipRule="evenodd"
+                />
               </svg>
               {error}
             </div>
           </div>
         )}
 
-        {/* Stats */}
+        {/* Stats
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6">
             <h3 className="text-lg font-semibold text-gray-400 mb-2">
@@ -199,7 +213,9 @@ Purchase Date: ${formatDate(ticket.purchaseDate)}
             <h3 className="text-lg font-semibold text-gray-400 mb-2">
               Total Points
             </h3>
-            <p className="text-3xl font-bold text-[#FF7F11]">{stats.totalPoints}</p>
+            <p className="text-3xl font-bold text-[#FF7F11]">
+              {stats.totalPoints}
+            </p>
           </div>
 
           <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6">
@@ -211,6 +227,8 @@ Purchase Date: ${formatDate(ticket.purchaseDate)}
             </p>
           </div>
         </div>
+
+         */}
 
         {/* Tickets */}
         <div className="bg-[#0B1D13] border border-[#2A2A2A] rounded-lg p-6 mb-8">
@@ -303,7 +321,9 @@ Purchase Date: ${formatDate(ticket.purchaseDate)}
                           </span>
                         ))
                       ) : (
-                        <span className="text-gray-500 text-sm">No teams assigned yet</span>
+                        <span className="text-gray-500 text-sm">
+                          No teams assigned yet
+                        </span>
                       )}
                     </div>
                   </div>
@@ -321,7 +341,7 @@ Purchase Date: ${formatDate(ticket.purchaseDate)}
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <button 
+                      <button
                         onClick={() => handleViewDetails(ticket)}
                         className="px-4 py-2 border border-[#2A2A2A] text-gray-300 rounded-md hover:bg-[#2A2A2A] transition-colors"
                       >

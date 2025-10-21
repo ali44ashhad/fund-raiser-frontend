@@ -1,4 +1,4 @@
-import { api } from "./auth"; 
+import { api } from "./auth";
 const unwrap = (res) => {
   if (!res) return null;
   const data = res.data ?? res;
@@ -63,7 +63,7 @@ class TicketService {
   async createTicket(ticketData) {
     try {
       console.log("📤 Sending ticket creation request:", ticketData);
-      
+
       // Try different payload formats
       const payloads = [
         // Format 1: Direct data
@@ -74,16 +74,16 @@ class TicketService {
         {
           playerId: ticketData.playerId,
           tournamentId: ticketData.tournamentId,
-          teamsPerTicket: ticketData.teamsPerTicket
-        }
+          teamsPerTicket: ticketData.teamsPerTicket,
+        },
       ];
 
       let lastError = null;
-      
+
       for (const payload of payloads) {
         try {
           console.log("🔄 Trying payload format:", payload);
-          const response = await api.post('/tickets/create', payload);
+          const response = await api.post("/tickets/create", payload);
           console.log("✅ Ticket created successfully:", response.data);
           return response.data;
         } catch (err) {
@@ -93,20 +93,20 @@ class TicketService {
           continue; // Try next format
         }
       }
-      
+
       // If all formats failed, throw the last error
       throw lastError;
-      
     } catch (error) {
-      console.error('❌ All ticket creation attempts failed');
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
-      console.error('Error headers:', error.response?.headers);
-      
-      const errorMessage = error.response?.data?.message || 
-                          error.response?.data?.error ||
-                          error.message || 
-                          'Failed to create ticket';
+      console.error("❌ All ticket creation attempts failed");
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      console.error("Error headers:", error.response?.headers);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to create ticket";
       throw new Error(errorMessage);
     }
   }
@@ -144,7 +144,10 @@ class TicketService {
   // Get user tickets
   async getUserTickets(userId) {
     try {
-      const response = await api.get(`/tickets/getTicket?id=${userId}`);
+      console.log("USER id", userId);
+      const response = await api.get(`/tickets/player/${userId}`);
+      console.log("Ticket service response get tickets", response);
+
       return response.data;
     } catch (error) {
       console.error("Error fetching user tickets:", error);
@@ -156,10 +159,10 @@ class TicketService {
   async createTicketAlternative(ticketData) {
     try {
       console.log("🔄 Trying alternative endpoint /tickets");
-      const response = await api.post('/tickets', ticketData);
+      const response = await api.post("/tickets", ticketData);
       return response.data;
     } catch (error) {
-      console.error('Error creating ticket (alternative):', error);
+      console.error("Error creating ticket (alternative):", error);
       throw error;
     }
   }
