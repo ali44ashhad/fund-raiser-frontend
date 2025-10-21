@@ -4,12 +4,14 @@ import { ticketService } from "../services/ticketService";
 // import { tournamentService } from "../services/tournamentService";
 import { formatDate } from "../utils/helpers";
 import useAuth from "../hooks/useAuth";
+import tournamentService from "../services/tournamentService";
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
   const [userTickets, setUserTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // const [teamNames, setTeamNames] = useState({});
   // const [stats, setStats] = useState({
   //   totalTickets: 0,
   //   totalPoints: 0,
@@ -19,6 +21,24 @@ const Dashboard = () => {
   useEffect(() => {
     fetchUserTickets();
   }, [currentUser]);
+
+  const getTeamNames = async () => {
+    try {
+      const teams = await tournamentService.getAllTeamsWithNames();
+      console.log("TEAMS", teams);
+    } catch (err) {
+      console.error("Error fetching team names:", err);
+    }
+  };
+
+  const getTournamentNames = async () => {
+    try {
+      const tournaments = await tournamentService.getAllTournamentsWithNames();
+      console.log("TEAMS", tournaments);
+    } catch (err) {
+      console.error("Error fetching team names:", err);
+    }
+  };
 
   const fetchUserTickets = async () => {
     setLoading(true);
@@ -34,9 +54,62 @@ const Dashboard = () => {
         if (currentUser?.id) {
           ticketsData = await ticketService.getUserTickets(currentUser.id);
           console.log("User tickets API response:", ticketsData);
+
+          // Fetch teams summary (id + teamName) and build map
+          const teamMap = {};
+          try {
+            const teams = await tournamentService.getAllTeamsWithNames();
+            if (Array.isArray(teams)) {
+              teams.forEach((team) => {
+                const id = team.id ?? team._id ?? team.teamId ?? null;
+                const name = team.teamName ?? team.name ?? "Unnamed Team";
+                if (id) teamMap[id] = name;
+              });
+            }
+            setTeamNames(teamMap);
+          } catch (err) {
+            console.warn("Could not fetch team names summary", err);
+          }
+
+          // Normalize the tickets into the shape our UI expects
+          const normalized = (
+            Array.isArray(ticketsData) ? ticketsData : []
+          ).map((t, idx) => {
+            // teams may be objects or ids/strings; extract id or keep value
+            const teams = Array.isArray(t.teams)
+              ? t.teams.map((team) => {
+                  if (!team) return team;
+                  // team might be a string id, or an object with _id/id/teamId
+                  const id = team._id ?? team.id ?? team.teamId ?? team;
+                  // map to name if available
+                  return teamMap[id] ?? id;
+                })
+              : [];
+
+            return {
+              id: t._id ?? t.id ?? String(idx),
+              number: t.ticketNumber ?? t.number ?? `T-${10000 + idx}`,
+              tournament:
+                t.tournamentName ??
+                t.tournament?.name ??
+                t.tournamentId ??
+                null,
+              tournamentId: t.tournamentId ?? t.tournament?._id ?? null,
+              teams,
+              status: t.status ?? t.state ?? "Active",
+              accessCode: t.accessCode ?? t.access_code ?? "",
+              totalPoints: t.totalPoints ?? 0,
+              purchaseDate:
+                t.createdAt ?? t.purchaseDate ?? new Date().toISOString(),
+              exchangesLeft: t.exchangesLeft ?? 0,
+              raw: t,
+            };
+          });
+
+          setUserTickets(normalized);
         }
       } catch (err) {
-        console.log("Could not fetch user tickets from API");
+        console.log("Could not fetch user tickets from API", err);
       }
 
       // // If no tickets from user endpoint, try to get all tickets and filter

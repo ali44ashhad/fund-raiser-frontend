@@ -67,7 +67,6 @@
 //       throw error;
 //     }
 //   }
-  
 
 //   // Backwards-compatible alias
 //   async getTeams(tournamentId) {
@@ -77,7 +76,6 @@
 
 // export const tournamentService = new TournamentService();
 // export default tournamentService;
-
 
 // src/services/tournamentService.js
 import { api } from "./auth";
@@ -184,7 +182,9 @@ class TournamentService {
   async getTournamentTeams(tournamentId) {
     try {
       if (!tournamentId) throw new Error("tournamentId is required");
-      const response = await api.get(`/tournaments/teams/list?tournamentId=${tournamentId}`);
+      const response = await api.get(
+        `/tournaments/teams/list?tournamentId=${tournamentId}`
+      );
       const data = response.data ?? response;
 
       if (Array.isArray(data)) return data;
@@ -194,7 +194,10 @@ class TournamentService {
       // fallback common shapes
       return data?.teamsList ?? data?.items ?? [];
     } catch (error) {
-      console.error(`Error fetching teams for tournament ${tournamentId}:`, getErrorMessage(error));
+      console.error(
+        `Error fetching teams for tournament ${tournamentId}:`,
+        getErrorMessage(error)
+      );
       throw error;
     }
   }
@@ -213,14 +216,18 @@ class TournamentService {
    */
   async createTeams(tournamentId, teams = []) {
     try {
-      if (!tournamentId) throw new Error("tournamentId is required to create teams");
+      if (!tournamentId)
+        throw new Error("tournamentId is required to create teams");
       if (!Array.isArray(teams)) throw new Error("teams must be an array");
 
       const payload = { tournamentId, teams };
       const response = await api.post("/tournaments/teams", payload);
       return response.data;
     } catch (error) {
-      console.error(`Error creating teams for tournament ${tournamentId}:`, getErrorMessage(error));
+      console.error(
+        `Error creating teams for tournament ${tournamentId}:`,
+        getErrorMessage(error)
+      );
       throw error;
     }
   }
@@ -234,7 +241,10 @@ class TournamentService {
   async updateTeam(teamId, updateData) {
     try {
       if (!teamId) throw new Error("teamId is required to update a team");
-      const response = await api.put(`/tournaments/teams/${teamId}`, updateData);
+      const response = await api.put(
+        `/tournaments/teams/${teamId}`,
+        updateData
+      );
       return response.data;
     } catch (error) {
       console.error(`Error updating team ${teamId}:`, getErrorMessage(error));
@@ -254,6 +264,26 @@ class TournamentService {
       return response.data;
     } catch (error) {
       console.error(`Error deleting team ${teamId}:`, getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async getAllTeamsWithNames() {
+    try {
+      const response = await api.get("/tournaments/teams/summary");
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching teams:`, getErrorMessage(error));
+      throw error;
+    }
+  }
+
+  async getAllTournamentsWithNames() {
+    try {
+      const response = await api.get("/tournaments/summary");
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching tournaments:`, getErrorMessage(error));
       throw error;
     }
   }
