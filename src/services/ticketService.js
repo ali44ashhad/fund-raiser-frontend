@@ -32,7 +32,9 @@ class TicketService {
   // Get tickets filtered by tournament ID
   async getTicketsByTournament(tournamentId) {
     try {
-      const res = await api.get(`/tickets?tournamentId=${tournamentId}`);
+      const res = await api.get(`/tickets?tournamentId=${tournamentId}`, {
+        withCredentials: true,
+      });
       return unwrap(res);
     } catch (err) {
       handleError(err);
@@ -145,7 +147,9 @@ class TicketService {
   async getUserTickets(userId) {
     try {
       console.log("USER id", userId);
-      const response = await api.get(`/tickets/player/${userId}`);
+      const response = await api.get(`/tickets/player/${userId}`, {
+        withCredentials: true,
+      });
       console.log("Ticket service response get tickets", response);
 
       return response.data;
